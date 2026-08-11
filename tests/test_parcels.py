@@ -10,9 +10,11 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.an_post.const import (
+    CAPABILITIES,
     CONF_DELIVERED_FILTER_AMOUNT,
     CONF_DELIVERED_FILTER_TYPE,
     DOMAIN,
+    KNOWN_CAPABILITIES,
     ParcelStatus,
 )
 from custom_components.an_post.parcels import (
@@ -218,6 +220,17 @@ def test_normalize_never_reports_pickup():
     parcel = normalize_parcel(active_sample())
     assert parcel["pickup"] is False
     assert parcel["pickup_point"] is None
+
+
+def test_capabilities_are_known_values():
+    """A typo here would silently misreport this carrier on the docs site."""
+    assert CAPABILITIES <= KNOWN_CAPABILITIES
+
+
+def test_capabilities_match_the_no_pickup_no_weight_gap():
+    """CAPABILITIES must agree with test_normalize_delivered_parcel /
+    test_normalize_never_reports_pickup."""
+    assert CAPABILITIES == {"delivery_window", "url"}
 
 
 def test_normalize_pending_placeholder():

@@ -94,7 +94,8 @@ not duplicate them here; this file is HA-integration decisions only.
 - **`receiver` prefers `recipientName`** (the label's addressee) **and falls
   back to `receiverName`** (who actually took delivery, populated once
   collected). `weight` / `dimensions` are always `None` — the API exposes
-  neither.
+  neither. Reflected in `const.py`'s `CAPABILITIES` (feeds the docs site's
+  comparison table) — keep the two in agreement if that ever changes.
 - **Pre-1.0 self-reporting**, since the payload shape is APK-confirmed but no
   *populated* body has ever been seen (the test account had no parcel): a
   one-shot WARNING with the issue-template link fires the first time a real
