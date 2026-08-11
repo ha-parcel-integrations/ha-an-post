@@ -1,0 +1,15 @@
+{
+  "domain": "an_post",
+  "name": "An Post",
+  "codeowners": [
+    "@peternijssen"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/ha-parcel-integrations/ha-an-post",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/ha-parcel-integrations/ha-an-post/issues",
+  "quality_scale": "silver",
+  "requirements": [],
+  "version": "0.9.0"
+}

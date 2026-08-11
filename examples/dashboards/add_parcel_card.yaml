@@ -1,0 +1,60 @@
+# Add a bare An Post tracking number to your account's watchlist, straight
+# from a dashboard — no diving into the app.
+#
+# The integration exposes two services:
+#   - an_post.track_parcel   (config_entry_id, tracking_code)
+#   - an_post.untrack_parcel (config_entry_id, tracking_code)
+#
+# Unlike the account-less carriers in this suite, this calls An Post's own
+# server-side watchlist — the parcel then shows up in the regular inbox on
+# the next poll, exactly like one the account auto-imported.
+#
+# config_entry_id: find yours under Settings → Devices & Services → An Post →
+# the account's card → the three-dot menu shows nothing useful, so instead
+# open Developer Tools → Actions, pick "An Post: Track parcel", and use its
+# Account dropdown — it fills in the id for you. Paste that id below.
+
+# ---------------------------------------------------------------------------
+# 1) Helper — Settings → Devices & Services → Helpers → Create → Text,
+#    or in configuration.yaml:
+# ---------------------------------------------------------------------------
+input_text:
+  an_post_new_parcel:
+    name: New An Post tracking number
+    max: 20
+
+# ---------------------------------------------------------------------------
+# 2) Script — reads the text field, adds it to the watchlist, then clears
+#    the field. Add to scripts.yaml (or Settings → Automations & Scenes →
+#    Scripts). Replace YOUR_CONFIG_ENTRY_ID with the id from the note above.
+# ---------------------------------------------------------------------------
+an_post_track_new_parcel:
+  alias: "An Post: track the parcel in the input box"
+  sequence:
+    - condition: template
+      value_template: "{{ states('input_text.an_post_new_parcel') | trim != '' }}"
+    - action: an_post.track_parcel
+      data:
+        config_entry_id: YOUR_CONFIG_ENTRY_ID
+        tracking_code: "{{ states('input_text.an_post_new_parcel') | trim }}"
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.an_post_new_parcel
+      data:
+        value: ""
+
+# ---------------------------------------------------------------------------
+# 3) Lovelace card — paste into a dashboard (Edit → raw config, or add a
+#    manual card). Type the number, press the button.
+# ---------------------------------------------------------------------------
+# type: entities
+# title: Track an An Post parcel
+# entities:
+#   - entity: input_text.an_post_new_parcel
+#   - type: button
+#     name: Track
+#     icon: mdi:package-variant-plus
+#     action_name: Add
+#     tap_action:
+#       action: perform-action
+#       perform_action: script.an_post_track_new_parcel

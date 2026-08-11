@@ -1,0 +1,32 @@
+# Notify when An Post reports a delivery attempt (or another problem) on a
+# tracked parcel.
+#
+# An Post's own status vocabulary has no separate "out for delivery today"
+# category — it only reports coarse states (in transit, customs, sorting,
+# delivered, delivery attempted, return to sender, info received). The one
+# that is actually worth an alert is "problem": a failed delivery attempt or
+# other exception, which needs the user to act (redirect, collect, pay
+# customs, etc).
+
+alias: "An Post: delivery problem"
+description: Notify when a tracked An Post parcel reports a delivery attempt or other exception.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: an_post_parcel_status_changed
+
+conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.new_status == 'problem' }}"
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "An Post"
+      message: >-
+        {{ trigger.event.data.sender or trigger.event.data.barcode }}
+        needs your attention — An Post reported a delivery problem.
+      data:
+        clickAction: "{{ trigger.event.data.url }}"

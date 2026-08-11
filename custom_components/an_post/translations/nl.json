@@ -1,0 +1,147 @@
+{
+  "title": "An Post",
+  "config": {
+    "step": {
+      "user": {
+        "title": "An Post instellen",
+        "description": "Meld je aan met het account dat je op de website of in de app van An Post gebruikt. Je pakketten worden uit dat account gelezen.",
+        "data": {
+          "email": "E-mailadres",
+          "password": "Wachtwoord"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Aanmelding bij An Post verlopen",
+        "description": "An Post accepteert de opgeslagen gegevens niet meer. Voer ze opnieuw in voor {account}.",
+        "data": {
+          "email": "E-mailadres",
+          "password": "Wachtwoord"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "An Post heeft deze inloggegevens geweigerd.",
+      "cannot_connect": "Kon An Post niet bereiken. Probeer het opnieuw."
+    },
+    "abort": {
+      "already_configured": "Dat An Post-account is al ingesteld.",
+      "reauth_successful": "An Post is opnieuw geverifieerd.",
+      "wrong_account": "Deze gegevens horen bij een ander An Post-account. Meld je aan met het account waarvoor deze integratie is ingesteld."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "An Post-opties",
+        "sections": {
+          "delivered": {
+            "name": "Bezorgde pakketten",
+            "data": {
+              "delivered_filter_type": "Filteren op",
+              "delivered_filter_amount": "Aantal"
+            },
+            "data_description": {
+              "delivered_filter_type": "Toon bezorgde pakketten van de laatste X dagen, of beperk tot de X meest recente.",
+              "delivered_filter_amount": "Aantal dagen of pakketten om te tonen."
+            }
+          },
+          "polling": {
+            "name": "Verversen",
+            "data": {
+              "refresh_interval": "Ververs elke"
+            },
+            "data_description": {
+              "refresh_interval": "Hoe vaak de integratie An Post controleert op pakketupdates. Een langzamer interval is vriendelijker voor de API van An Post; de standaard van 30 minuten is ruim voldoende voor de meeste pakketten."
+            }
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "refresh_interval": {
+      "options": {
+        "15": "15 minuten",
+        "30": "30 minuten",
+        "60": "60 minuten",
+        "120": "120 minuten",
+        "240": "240 minuten"
+      }
+    },
+    "delivered_filter_type": {
+      "options": {
+        "days": "Dagen",
+        "parcels": "Aantal pakketten"
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "parcel_registered": "Een pakket is geregistreerd",
+      "parcel_status_changed": "De status van een pakket is gewijzigd",
+      "parcel_delivered": "Een pakket is bezorgd",
+      "parcel_delivery_time_changed": "De verwachte bezorgtijd van een pakket is gewijzigd"
+    }
+  },
+  "services": {
+    "track_parcel": {
+      "name": "Pakket volgen",
+      "description": "Voeg een los trackingnummer toe aan de watchlist van een An Post-account. An Post neemt het automatisch op in de gewone pakketlijst van dat account.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Aan welk geconfigureerd An Post-account het trackingnummer wordt toegevoegd."
+        },
+        "tracking_code": {
+          "name": "Trackingnummer",
+          "description": "Het An Post-trackingnummer (bijv. AB123456789IE)."
+        }
+      }
+    },
+    "untrack_parcel": {
+      "name": "Pakket niet meer volgen",
+      "description": "Verwijder een trackingnummer uit de watchlist van een An Post-account.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Uit welk geconfigureerd An Post-account het trackingnummer wordt verwijderd."
+        },
+        "tracking_code": {
+          "name": "Trackingnummer",
+          "description": "Het An Post-trackingnummer dat niet meer gevolgd moet worden."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": {
+        "name": "Verversen"
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "name": "Bezorgingen"
+      }
+    },
+    "sensor": {
+      "incoming_parcels": {
+        "name": "Inkomende pakketten",
+        "unit_of_measurement": "pakketten"
+      },
+      "next_delivery": {
+        "name": "Volgende bezorging"
+      },
+      "delivered_parcels": {
+        "name": "Bezorgde pakketten",
+        "unit_of_measurement": "pakketten"
+      },
+      "last_update": {
+        "name": "Laatste succesvolle update"
+      },
+      "parcel": {
+        "name": "Pakket {barcode}"
+      }
+    }
+  }
+}

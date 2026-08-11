@@ -1,0 +1,147 @@
+{
+  "title": "An Post",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Socraigh An Post",
+        "description": "Sínigh isteach leis an gcuntas a úsáideann tú ar shuíomh gréasáin nó aip An Post. Léitear do phostphacáistí ón gcuntas sin.",
+        "data": {
+          "email": "Seoladh ríomhphoist",
+          "password": "Pasfhocal"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Tá síniú isteach An Post as feidhm",
+        "description": "Ní ghlacann An Post leis na dintiúir stóráilte a thuilleadh. Cuir isteach arís iad do {account}.",
+        "data": {
+          "email": "Seoladh ríomhphoist",
+          "password": "Pasfhocal"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Dhiúltaigh An Post do na dintiúir seo.",
+      "cannot_connect": "Níorbh fhéidir teacht ar An Post. Bain triail eile as."
+    },
+    "abort": {
+      "already_configured": "Tá an cuntas An Post sin socraithe cheana féin.",
+      "reauth_successful": "D'éirigh le hathfhíordheimhniú An Post.",
+      "wrong_account": "Baineann na dintiúir sin le cuntas An Post difriúil. Sínigh isteach leis an gcuntas ar socraíodh an iontráil seo dó."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Roghanna An Post",
+        "sections": {
+          "delivered": {
+            "name": "Pacáistí seachadta",
+            "data": {
+              "delivered_filter_type": "Scag de réir",
+              "delivered_filter_amount": "Méid"
+            },
+            "data_description": {
+              "delivered_filter_type": "Taispeáin pacáistí a seachadadh sna X lá is déanaí, nó teorannaigh do na X is déanaí.",
+              "delivered_filter_amount": "Líon na laethanta nó na bpacáistí le taispeáint."
+            }
+          },
+          "polling": {
+            "name": "Pollú",
+            "data": {
+              "refresh_interval": "Athnuaigh gach"
+            },
+            "data_description": {
+              "refresh_interval": "Cé chomh minic a sheiceálann an t-imeascadh An Post le haghaidh nuashonruithe pacáiste. Is boige d'API An Post eatramh níos moille; is leor an réamhshocrú 30 nóiméad don chuid is mó de na pacáistí."
+            }
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "refresh_interval": {
+      "options": {
+        "15": "15 nóiméad",
+        "30": "30 nóiméad",
+        "60": "60 nóiméad",
+        "120": "120 nóiméad",
+        "240": "240 nóiméad"
+      }
+    },
+    "delivered_filter_type": {
+      "options": {
+        "days": "Laethanta",
+        "parcels": "Líon na bpacáistí"
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "parcel_registered": "Cláraíodh pacáiste",
+      "parcel_status_changed": "D'athraigh stádas pacáiste",
+      "parcel_delivered": "Seachadadh pacáiste",
+      "parcel_delivery_time_changed": "D'athraigh am seachadta measta pacáiste"
+    }
+  },
+  "services": {
+    "track_parcel": {
+      "name": "Rian pacáiste",
+      "description": "Cuir uimhir lomrianaithe le liosta faire cuntas An Post. Fillfidh An Post isteach í go huathoibríoch i ngnáthliosta pacáistí an chuntais sin.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Cuntas",
+          "description": "Cén liosta faire cuntas An Post socraithe a gcuirfear an uimhir leis."
+        },
+        "tracking_code": {
+          "name": "Uimhir rianaithe",
+          "description": "Uimhir rianaithe An Post (m.sh. AB123456789IE)."
+        }
+      }
+    },
+    "untrack_parcel": {
+      "name": "Ná rian pacáiste a thuilleadh",
+      "description": "Bain uimhir rianaithe de liosta faire cuntas An Post.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Cuntas",
+          "description": "Cén liosta faire cuntas An Post socraithe a mbainfear an uimhir de."
+        },
+        "tracking_code": {
+          "name": "Uimhir rianaithe",
+          "description": "An uimhir rianaithe An Post nach mbeidh á faire a thuilleadh."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": {
+        "name": "Athnuaigh"
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "name": "Seachadtaí"
+      }
+    },
+    "sensor": {
+      "incoming_parcels": {
+        "name": "Pacáistí ag teacht isteach",
+        "unit_of_measurement": "pacáistí"
+      },
+      "next_delivery": {
+        "name": "An chéad seachadadh eile"
+      },
+      "delivered_parcels": {
+        "name": "Pacáistí seachadta",
+        "unit_of_measurement": "pacáistí"
+      },
+      "last_update": {
+        "name": "An nuashonrú rathúil is déanaí"
+      },
+      "parcel": {
+        "name": "Pacáiste {barcode}"
+      }
+    }
+  }
+}

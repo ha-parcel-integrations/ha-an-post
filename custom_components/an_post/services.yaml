@@ -1,0 +1,25 @@
+track_parcel:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: an_post
+    tracking_code:
+      required: true
+      example: "AB123456789IE"
+      selector:
+        text:
+
+untrack_parcel:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: an_post
+    tracking_code:
+      required: true
+      example: "AB123456789IE"
+      selector:
+        text:

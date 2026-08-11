@@ -1,0 +1,147 @@
+{
+  "title": "An Post",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up An Post",
+        "description": "Sign in with the account you use on the An Post website or app. Your parcels are read from that account.",
+        "data": {
+          "email": "E-mail address",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "An Post sign-in expired",
+        "description": "An Post no longer accepts the stored credentials. Enter them again for {account}.",
+        "data": {
+          "email": "E-mail address",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "An Post rejected these credentials.",
+      "cannot_connect": "Could not reach An Post. Please try again."
+    },
+    "abort": {
+      "already_configured": "That An Post account is already set up.",
+      "reauth_successful": "An Post was reauthenticated successfully.",
+      "wrong_account": "Those credentials are for a different An Post account. Sign in with the account this entry was set up for."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "An Post options",
+        "sections": {
+          "delivered": {
+            "name": "Delivered parcels",
+            "data": {
+              "delivered_filter_type": "Filter by",
+              "delivered_filter_amount": "Amount"
+            },
+            "data_description": {
+              "delivered_filter_type": "Show delivered parcels from the last X days, or limit to the X most recent.",
+              "delivered_filter_amount": "Number of days or parcels to show."
+            }
+          },
+          "polling": {
+            "name": "Polling",
+            "data": {
+              "refresh_interval": "Refresh every"
+            },
+            "data_description": {
+              "refresh_interval": "How often the integration checks An Post for parcel updates. A slower interval is gentler on An Post's API; the default of 30 minutes is plenty for most parcels."
+            }
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "refresh_interval": {
+      "options": {
+        "15": "15 minutes",
+        "30": "30 minutes",
+        "60": "60 minutes",
+        "120": "120 minutes",
+        "240": "240 minutes"
+      }
+    },
+    "delivered_filter_type": {
+      "options": {
+        "days": "Days",
+        "parcels": "Number of parcels"
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "parcel_registered": "A parcel was registered",
+      "parcel_status_changed": "A parcel's status changed",
+      "parcel_delivered": "A parcel was delivered",
+      "parcel_delivery_time_changed": "A parcel's expected delivery time changed"
+    }
+  },
+  "services": {
+    "track_parcel": {
+      "name": "Track parcel",
+      "description": "Add a bare tracking number to an An Post account's watchlist. An Post folds it into that account's regular parcel list automatically.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Which configured An Post account's watchlist to add the number to."
+        },
+        "tracking_code": {
+          "name": "Tracking number",
+          "description": "The An Post tracking number (e.g. AB123456789IE)."
+        }
+      }
+    },
+    "untrack_parcel": {
+      "name": "Untrack parcel",
+      "description": "Remove a tracking number from an An Post account's watchlist.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Account",
+          "description": "Which configured An Post account's watchlist to remove the number from."
+        },
+        "tracking_code": {
+          "name": "Tracking number",
+          "description": "The An Post tracking number to stop watching."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": {
+        "name": "Refresh"
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "name": "Deliveries"
+      }
+    },
+    "sensor": {
+      "incoming_parcels": {
+        "name": "Incoming parcels",
+        "unit_of_measurement": "parcels"
+      },
+      "next_delivery": {
+        "name": "Next delivery"
+      },
+      "delivered_parcels": {
+        "name": "Delivered parcels",
+        "unit_of_measurement": "parcels"
+      },
+      "last_update": {
+        "name": "Last successful update"
+      },
+      "parcel": {
+        "name": "Parcel {barcode}"
+      }
+    }
+  }
+}
