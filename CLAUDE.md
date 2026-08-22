@@ -35,7 +35,7 @@ you act in one of these areas:
 
 ## Carrier-specific notes
 
-**API mechanics live in `carrier-research/api/an-post/` (private research
+**API mechanics live in `carrier-research/an-post/api/` (private research
 repo)** — the Gigya auth chain, `my-deliveries-api`'s endpoints, the response
 envelope/nullability, the wire date format, and both status vocabularies. Do
 not duplicate them here; this file is HA-integration decisions only.
@@ -167,5 +167,5 @@ python -m pytest tests/ --cov=custom_components.an_post
 
 Coverage must stay **above 95%** (silver `test-coverage` rule). Run before
 committing. A code change updates the README + this file + `docs/` in the same
-commit; the API reference lives in this carrier's directory under the private
-`carrier-research/api/`, never in this repo.
+commit; the API reference lives in the `api/` subfolder of this carrier's
+directory under the private `carrier-research/an-post/`, never in this repo.
