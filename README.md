@@ -45,7 +45,7 @@ Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) 
 
 ## Requirements
 
-- Home Assistant 2024.7 or newer
+- Home Assistant 2024.12 or newer
 - An [An Post](https://www.anpost.com) account (the same login as the website or the *Track & Manage* app)
 
 ## Installation
@@ -94,6 +94,12 @@ The integration creates one device per An Post account, named **`An Post (<your-
 | `An Post (account) Last successful update` | Diagnostic: when An Post was last polled successfully |
 
 A delivered parcel moves from its per-parcel sensor to the delivered sensor automatically.
+
+An **`An Post (account) Deliveries`** calendar entity is also created, showing
+expected delivery dates for active parcels — read-only, no extra API calls.
+
+An **`An Post (account) Refresh`** button entity forces an immediate poll,
+without waiting for the next scheduled interval.
 
 Every parcel exposed on a sensor attribute uses a carrier-agnostic shape:
 
