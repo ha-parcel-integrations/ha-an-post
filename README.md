@@ -19,6 +19,7 @@ Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) 
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Options](#options)
+- [Dynamic polling](#dynamic-polling)
 - [Removal](#removal)
 - [Sensors](#sensors)
 - [Parcel status reference](#parcel-status-reference)
@@ -73,9 +74,38 @@ Open **Configure** on the integration entry:
 | Section | Option | Default | Description |
 |---|---|---|---|
 | Delivered parcels | Filter by / amount | last 7 days | How long delivered parcels stay visible on the delivered sensor. |
-| Polling | Refresh every | 30 min | How often An Post is checked. Slower is gentler on their API. |
+| Polling | Refresh every | Automatic | **Automatic**, or a fixed **15 / 30 / 60 / 120 / 240 minutes**. New installs default to Automatic; existing installs keep their current fixed value until changed. See [Dynamic polling](#dynamic-polling) below. |
 
 Changing an option reloads the integration; there is no restart needed.
+
+## Dynamic polling
+
+You can set **Refresh every** to **Automatic** instead of a fixed number of
+minutes. Instead of polling An Post at the same rate around the clock, the
+integration adjusts its own cadence to what your parcels are actually doing:
+
+- **Quiet hours** — no polling between 00:00–06:00 local time, aside from one
+  catch-up check at each end of that window (around midnight and around 6
+  AM), so an overnight update is never missed.
+- **Hot (every 15 minutes)** — while any tracked parcel is out for delivery
+  today, starting an hour before its delivery window opens (or immediately if
+  no window is known yet).
+- **Normal (every 45 minutes)** otherwise — this is also the minimum cadence,
+  since it's the only way to discover a new shipment that appears on the
+  account without going through Home Assistant. Delivered parcels never
+  affect the cadence — only what's still in transit counts.
+- A small, fixed per-install offset is added on top, so not every An Post
+  installation out there polls at exactly the same second.
+
+An Post's current status vocabulary has no same-day-delivery category, so the
+hot tier does not trigger in practice today — the logic is in place and will
+kick in automatically if that ever changes.
+
+This is opt-in for now, but it's expected to become the default — and
+eventually the only — polling behaviour across the parcel-integrations
+suite. If you try Automatic, we'd genuinely like to hear how it goes:
+share your experience in [this
+discussion](https://github.com/orgs/ha-parcel-integrations/discussions/12).
 
 ## Removal
 

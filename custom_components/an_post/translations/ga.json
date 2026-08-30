@@ -51,7 +51,7 @@
               "refresh_interval": "Athnuaigh gach"
             },
             "data_description": {
-              "refresh_interval": "Cé chomh minic a sheiceálann an t-imeascadh An Post le haghaidh nuashonruithe pacáiste. Is boige d'API An Post eatramh níos moille; is leor an réamhshocrú 30 nóiméad don chuid is mó de na pacáistí."
+              "refresh_interval": "Cé chomh minic a sheiceálann an t-imeascadh An Post le haghaidh nuashonruithe pacáiste. Luasaíonn \"Uathoibríoch\" (an réamhshocrú do shuiteálacha nua) timpeall ar sheachadadh a bhfuiltear ag súil leis agus moillíonn sé thar oíche; pollann eatramh seasta ag an ráta comhsheasmhach sin timpeall an chloig ina ionad sin."
             }
           }
         }
@@ -61,6 +61,7 @@
   "selector": {
     "refresh_interval": {
       "options": {
+        "auto": "Uathoibríoch (molta)",
         "15": "15 nóiméad",
         "30": "30 nóiméad",
         "60": "60 nóiméad",

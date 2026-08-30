@@ -15,7 +15,9 @@ from custom_components.an_post.const import (
     CONF_DELIVERED_FILTER_AMOUNT,
     CONF_DELIVERED_FILTER_TYPE,
     CONF_REFRESH_INTERVAL,
+    DEFAULT_NEW_REFRESH_INTERVAL,
     DOMAIN,
+    REFRESH_INTERVAL_AUTO,
 )
 
 EMAIL = "user@example.test"
@@ -58,7 +60,8 @@ async def test_user_flow_creates_entry(hass):
     assert result["type"] == "create_entry"
     assert result["title"] == EMAIL
     assert result["data"] == CREDENTIALS
-    assert result["options"][CONF_REFRESH_INTERVAL] == 30
+    assert result["options"][CONF_REFRESH_INTERVAL] == DEFAULT_NEW_REFRESH_INTERVAL
+    assert DEFAULT_NEW_REFRESH_INTERVAL == REFRESH_INTERVAL_AUTO
 
 
 @pytest.mark.parametrize(
@@ -201,3 +204,35 @@ async def test_options_flow_saves_and_reloads(hass):
     # itself rather than registering an update listener (which is deprecated in
     # combination with reloading).
     schedule_reload.assert_called_once_with(entry.entry_id)
+
+
+async def test_options_flow_can_switch_to_auto(hass):
+    entry = _entry()
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    with patch.object(hass.config_entries, "async_schedule_reload"):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"],
+            {
+                "delivered": {
+                    CONF_DELIVERED_FILTER_TYPE: "days",
+                    CONF_DELIVERED_FILTER_AMOUNT: 7,
+                },
+                "polling": {CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO},
+            },
+        )
+
+    assert result["type"] == "create_entry"
+    assert result["data"][CONF_REFRESH_INTERVAL] == REFRESH_INTERVAL_AUTO
+
+
+async def test_options_flow_refresh_interval_default_is_string(hass):
+    """A stored int default must not trip the selector's "expected str" check."""
+    entry = _entry()
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    assert result["step_id"] == "init"

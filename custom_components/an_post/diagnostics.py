@@ -59,6 +59,14 @@ async def async_get_config_entry_diagnostics(
             "incoming_active": len(coordinator.data or []),
             "delivered": len(coordinator.delivered or []),
         },
+        "polling": {
+            "current_tier_minutes": coordinator.current_tier_minutes,
+            "update_interval_seconds": (
+                coordinator.update_interval.total_seconds()
+                if coordinator.update_interval
+                else None
+            ),
+        },
         "incoming": async_redact_data(coordinator.data or [], TO_REDACT),
         "delivered": async_redact_data(coordinator.delivered or [], TO_REDACT),
     }

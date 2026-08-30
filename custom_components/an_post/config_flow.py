@@ -30,8 +30,10 @@ from .const import (
     CONF_REFRESH_INTERVAL,
     DEFAULT_DELIVERED_FILTER_AMOUNT,
     DEFAULT_DELIVERED_FILTER_TYPE,
+    DEFAULT_NEW_REFRESH_INTERVAL,
     DEFAULT_REFRESH_INTERVAL,
     DOMAIN,
+    REFRESH_INTERVAL_AUTO,
     REFRESH_INTERVAL_OPTIONS,
 )
 
@@ -48,7 +50,8 @@ def _interval_selector() -> selector.SelectSelector:
     """Return the refresh-interval dropdown selector (options translated via strings)."""
     return selector.SelectSelector(
         selector.SelectSelectorConfig(
-            options=[str(minutes) for minutes in REFRESH_INTERVAL_OPTIONS],
+            options=[REFRESH_INTERVAL_AUTO]
+            + [str(minutes) for minutes in REFRESH_INTERVAL_OPTIONS],
             translation_key=CONF_REFRESH_INTERVAL,
             mode=selector.SelectSelectorMode.DROPDOWN,
         )
@@ -102,7 +105,12 @@ class AnPostConfigFlow(ConfigFlow, domain=DOMAIN):
                     options={
                         CONF_DELIVERED_FILTER_TYPE: DEFAULT_DELIVERED_FILTER_TYPE,
                         CONF_DELIVERED_FILTER_AMOUNT: DEFAULT_DELIVERED_FILTER_AMOUNT,
-                        CONF_REFRESH_INTERVAL: DEFAULT_REFRESH_INTERVAL,
+                        # New installs default to dynamic polling; an entry
+                        # set up before this option existed keeps reading
+                        # DEFAULT_REFRESH_INTERVAL via the coordinator's
+                        # .get() fallback instead (dynamic-polling.md
+                        # Section 5.2).
+                        CONF_REFRESH_INTERVAL: DEFAULT_NEW_REFRESH_INTERVAL,
                     },
                 )
 
@@ -166,7 +174,11 @@ class AnPostOptionsFlowHandler(OptionsFlow):
                     CONF_DELIVERED_FILTER_AMOUNT: int(
                         delivered[CONF_DELIVERED_FILTER_AMOUNT]
                     ),
-                    CONF_REFRESH_INTERVAL: int(polling[CONF_REFRESH_INTERVAL]),
+                    CONF_REFRESH_INTERVAL: (
+                        REFRESH_INTERVAL_AUTO
+                        if polling[CONF_REFRESH_INTERVAL] == REFRESH_INTERVAL_AUTO
+                        else int(polling[CONF_REFRESH_INTERVAL])
+                    ),
                 },
             )
 
