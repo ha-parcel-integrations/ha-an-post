@@ -46,7 +46,6 @@ Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) 
 
 ## Requirements
 
-- Home Assistant 2024.12 or newer
 - An [An Post](https://www.anpost.com) account (the same login as the website or the *Track & Manage* app)
 
 ## Installation
