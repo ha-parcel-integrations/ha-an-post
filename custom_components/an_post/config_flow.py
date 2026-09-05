@@ -40,7 +40,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # An Post logs in with the account's own e-mail address (Gigya ``loginID``)
-# and password — see carrier-research/api/an-post/login.md.
+# and password.
 _USER_SCHEMA = vol.Schema(
     {vol.Required(CONF_EMAIL): str, vol.Required(CONF_PASSWORD): str}
 )

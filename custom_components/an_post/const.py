@@ -42,9 +42,6 @@ KNOWN_CAPABILITIES = frozenset(
 # window end, no pickup-point name, no weight/dimensions, and no history route).
 CAPABILITIES = frozenset({"delivery_window", "url"})
 
-# Full write-up: carrier-research/api/an-post/{login,tracking}.md (private
-# research repo). Kept here only as much as the code needs to act on it.
-#
 # --- Gigya (SAP Customer Data Cloud) auth chain ---------------------------
 # An Post authenticates through Gigya, not through my-deliveries-api itself.
 # ``GIGYA_API_KEY`` is a public Gigya *site* key (ships in anpost.com's own
@@ -105,8 +102,7 @@ DEFAULT_REFRESH_INTERVAL = 30  # minutes — default for entries that predate "a
 # an existing entry keeps whatever it already has, numeric or "auto".
 DEFAULT_NEW_REFRESH_INTERVAL = REFRESH_INTERVAL_AUTO
 
-# Dynamic, status-driven polling — selected via "auto" above. See
-# carrier-research/dynamic-polling.md for the full algorithm and reasoning.
+# Dynamic, status-driven polling — selected via "auto" above.
 #
 # Quiet window: no polling between these local hours except the two anchors
 # below, for overnight / end-of-day catch-up.

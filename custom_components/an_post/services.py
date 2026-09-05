@@ -3,9 +3,8 @@
 Unlike the account-less carriers in this suite, An Post's ``track_parcel`` /
 ``untrack_parcel`` do not touch local config-entry storage — a watchlisted
 number is An Post's **own** server-side mechanism (``POST``/``DELETE
-.../watchlist/{trackingNumber}``, see ``carrier-research/api/an-post/
-tracking.md``), and a watchlisted item is folded into the account's regular
-``trackingitems`` inbox automatically. So these services just call the live
+.../watchlist/{trackingNumber}``), and a watchlisted item is folded into the
+account's regular ``trackingitems`` inbox automatically. So these services just call the live
 API; the coordinator's next poll picks the parcel up with no further plumbing.
 
 An Post allows more than one configured account (unlike the single-hub

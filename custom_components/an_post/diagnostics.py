@@ -25,7 +25,7 @@ TO_REDACT = {
     "sender",
     "receiver",
     "url",
-    # An Post payload fields — carrier-research/api/an-post/tracking.md
+    # An Post payload fields
     "trackingNumber",
     "recipientName",
     "receiverName",

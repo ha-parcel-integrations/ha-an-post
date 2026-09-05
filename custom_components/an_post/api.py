@@ -4,8 +4,7 @@ Two layers:
 
 * :class:`AnPostAuth` — the Gigya (SAP Customer Data Cloud) session. Owns
   ``{UID, login_token}`` and mints a fresh, short-lived ``id_token`` on
-  demand, re-logging in once when the session has expired. See
-  ``carrier-research/api/an-post/login.md`` for the full flow.
+  demand, re-logging in once when the session has expired.
 * :class:`AnPostApiClient` — the ``my-deliveries-api`` calls the coordinator
   and the config flow actually use. It asks :class:`AnPostAuth` for a token
   and never touches Gigya directly.
