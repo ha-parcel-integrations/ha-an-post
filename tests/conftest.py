@@ -11,6 +11,24 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.fixture(autouse=True)
+def reset_one_shot_warnings():
+    """Clear the "already warned this session" state between tests.
+
+    These sets are module-level by design -- a user must not be told about
+    the same unmapped category/trace-code or unexpected field on every
+    poll -- but that also makes them leak across tests, so whether a
+    warning fires would otherwise depend on test order.
+    """
+    from custom_components.an_post import parcels
+
+    parcels._unmapped_category_logged.clear()
+    parcels._unmapped_trace_code_logged.clear()
+    parcels._unexpected_fields_logged.clear()
+    parcels._unexpected_format_logged.clear()
+    yield
+
+
 if sys.platform == "win32":
     # pytest-homeassistant-custom-component blocks socket *creation*
     # (``disable_socket(allow_unix_socket=True)``) in its per-test setup hook.
