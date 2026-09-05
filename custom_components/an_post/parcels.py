@@ -65,7 +65,7 @@ _CATEGORY_STATUS: dict[int, ParcelStatus] = {
     7: ParcelStatus.REGISTERED,  # Info received
 }
 
-# traceCode -> category id, recovered whole from the app (tracking.md). Used
+# traceCode -> category id, recovered whole from the app. Used
 # only as an event-level fallback when a ``TrackingItemHistory`` entry carries
 # a ``traceCode`` but no ``webCategoryId`` — every field on it is boxed/optional.
 _TRACE_CODE_CATEGORY: dict[int, int] = {
@@ -83,8 +83,8 @@ _TRACE_CODE_CATEGORY: dict[int, int] = {
     for code in codes
 }
 
-# Every ``TrackingItemDetailsV2`` field the app's Moshi model declares
-# (tracking.md). A key outside this set on a real ``trackingItems`` item means
+# Every ``TrackingItemDetailsV2`` field the app's Moshi model declares.
+# A key outside this set on a real ``trackingItems`` item means
 # the response is richer than what research recovered from the app — schema
 # drift worth a one-shot report.
 _EXPECTED_ITEM_FIELDS = frozenset(
@@ -267,8 +267,8 @@ def format_dimensions(
     """Return the canonical ``dimensions`` dict, or ``None`` when incomplete.
 
     Units contract: **centimetres**, with ``text`` pre-formatted as
-    ``"L x W x H cm"``. An Post exposes neither weight nor dimensions
-    (tracking.md), so this is never actually populated for this carrier — kept
+    ``"L x W x H cm"``. An Post exposes neither weight nor dimensions,
+    so this is never actually populated for this carrier — kept
     for parity with the rest of the suite and in case that ever changes.
     """
     if length is None or width is None or height is None:
@@ -311,7 +311,7 @@ def normalize_parcel(raw: dict) -> dict:
       the payload carries no pickup-point name/location field, even though
       ``deliveryPin`` / ``parcelLockerPin`` hint that locker delivery exists.
     * ``weight`` / ``dimensions`` are always ``None`` — the API exposes
-      neither (tracking.md).
+      neither.
     * ``history`` is always ``None`` — see the note on
       ``CONF_INCLUDE_HISTORY``'s absence in const.py.
     * ``receiver`` prefers ``recipientName`` (the label's addressee) and
