@@ -44,31 +44,12 @@
               "delivered_filter_type": "Toon bezorgde pakketten van de laatste X dagen, of beperk tot de X meest recente.",
               "delivered_filter_amount": "Aantal dagen of pakketten om te tonen."
             }
-          },
-          "polling": {
-            "name": "Verversen",
-            "data": {
-              "refresh_interval": "Ververs elke"
-            },
-            "data_description": {
-              "refresh_interval": "Hoe vaak de integratie An Post controleert op pakketupdates. \"Automatisch\" (de standaard voor nieuwe installaties) polt sneller rond een verwachte bezorging en langzamer 's nachts; een vaste waarde polt dag en nacht met dat constante interval."
-            }
           }
         }
       }
     }
   },
   "selector": {
-    "refresh_interval": {
-      "options": {
-        "auto": "Automatisch (aanbevolen)",
-        "15": "15 minuten",
-        "30": "30 minuten",
-        "60": "60 minuten",
-        "120": "120 minuten",
-        "240": "240 minuten"
-      }
-    },
     "delivered_filter_type": {
       "options": {
         "days": "Dagen",

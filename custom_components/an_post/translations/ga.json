@@ -44,31 +44,12 @@
               "delivered_filter_type": "Taispeáin pacáistí a seachadadh sna X lá is déanaí, nó teorannaigh do na X is déanaí.",
               "delivered_filter_amount": "Líon na laethanta nó na bpacáistí le taispeáint."
             }
-          },
-          "polling": {
-            "name": "Pollú",
-            "data": {
-              "refresh_interval": "Athnuaigh gach"
-            },
-            "data_description": {
-              "refresh_interval": "Cé chomh minic a sheiceálann an t-imeascadh An Post le haghaidh nuashonruithe pacáiste. Luasaíonn \"Uathoibríoch\" (an réamhshocrú do shuiteálacha nua) timpeall ar sheachadadh a bhfuiltear ag súil leis agus moillíonn sé thar oíche; pollann eatramh seasta ag an ráta comhsheasmhach sin timpeall an chloig ina ionad sin."
-            }
           }
         }
       }
     }
   },
   "selector": {
-    "refresh_interval": {
-      "options": {
-        "auto": "Uathoibríoch (molta)",
-        "15": "15 nóiméad",
-        "30": "30 nóiméad",
-        "60": "60 nóiméad",
-        "120": "120 nóiméad",
-        "240": "240 nóiméad"
-      }
-    },
     "delivered_filter_type": {
       "options": {
         "days": "Laethanta",

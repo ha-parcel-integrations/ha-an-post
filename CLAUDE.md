@@ -20,7 +20,7 @@ you act in one of these areas:
 | touch entities, sensors, config/options flow, coordinator, diagnostics, translations | *Home Assistant developer docs* (its table points on to the canonical HA page — don't rely on memory) |
 | add/rename a parcel field, a `ParcelStatus`, or a bus event; change the sort/first-refresh; touch unmapped-status logging | *Parcel contract* — exact key set, units, sort, events + suppression; `test_parcels.py::test_normalize_publishes_exactly_the_canonical_keys` guards the key set |
 | ship anything while below 1.0.0 (unconfirmed data) | *Pre-1.0 releases* — one-shot WARNINGs for every guessed shape/code |
-| consider "fixing" a lint/pattern the skill flags (poll interval, inline client, sync requests) | *Deliberate skill divergences* — likely intentional, don't re-flag |
+| consider "fixing" a lint/pattern the skill flags (inline client, sync requests) | *Deliberate skill divergences* — likely intentional, don't re-flag |
 | commit, bump, tag, release, or write release notes; add a feature without a test | *Workflow / Commits / Versioning / Testing* |
 
 **Structure, options flow, dynamic polling and module layout are suite-wide**
@@ -28,6 +28,14 @@ and identical in every carrier — the authoritative spec is
 [`ha-carrier-template/scaffold/CLAUDE.md`](https://github.com/ha-parcel-integrations/ha-carrier-template/blob/main/scaffold/CLAUDE.md).
 Where this repo diverges from it, that is recorded below under
 *Divergences from the scaffold*.
+
+**Polling cadence is not configurable — don't add the option back.** The
+Section 2.2 account-based algorithm always runs: `_async_update_data` recomputes
+`update_interval` at the end of every refresh (quiet window 00:00–06:00 with two
+anchors, hot 15 min / mid 45 min, never a full stop because the mid-tier poll is
+also how a new shipment on the account gets discovered, plus a per-install
+stagger). The `refresh_interval` dropdown (Phase 1, 0.10.0) is gone; a stale
+stored value is never read. The options flow has one section left, `delivered`.
 
 **Suite-wide tripwires, kept inline on purpose:**
 - **First refresh in `__init__.py`, before `async_forward_entry_setups`** — from

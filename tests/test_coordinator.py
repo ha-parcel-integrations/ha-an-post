@@ -13,11 +13,9 @@ from custom_components.an_post.api import AnPostAuthError
 from custom_components.an_post.const import (
     CONF_DELIVERED_FILTER_AMOUNT,
     CONF_DELIVERED_FILTER_TYPE,
-    CONF_REFRESH_INTERVAL,
     DOMAIN,
     HOT_INTERVAL_MINUTES,
     MID_INTERVAL_MINUTES,
-    REFRESH_INTERVAL_AUTO,
     STAGGER_MINUTES,
     ParcelStatus,
 )
@@ -27,8 +25,6 @@ from custom_components.an_post.coordinator import (
     _in_quiet_window,
     _next_anchor,
     _next_update_interval,
-    _refresh_interval,
-    _refresh_setting,
     _stagger_minutes,
 )
 
@@ -304,31 +300,6 @@ async def test_losing_the_eta_is_silent(hass):
 
 
 # ---------------------------------------------------------------------------
-# _refresh_interval / _refresh_setting
-# ---------------------------------------------------------------------------
-
-
-def test_refresh_interval_defaults_to_30_minutes_when_option_unset():
-    entry = _entry(options={})
-    assert _refresh_interval(entry).total_seconds() == 30 * 60
-
-
-def test_refresh_interval_reads_from_options():
-    entry = _entry(options={CONF_REFRESH_INTERVAL: 60})
-    assert _refresh_interval(entry).total_seconds() == 60 * 60
-
-
-def test_refresh_interval_starts_hot_when_auto():
-    entry = _entry(options={CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO})
-    assert _refresh_interval(entry).total_seconds() == HOT_INTERVAL_MINUTES * 60
-
-
-def test_refresh_setting_passes_through_auto():
-    entry = _entry(options={CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO})
-    assert _refresh_setting(entry) == REFRESH_INTERVAL_AUTO
-
-
-# ---------------------------------------------------------------------------
 # Dynamic polling (Section 2.2, account-based) — pure helpers
 # ---------------------------------------------------------------------------
 
@@ -432,9 +403,19 @@ def test_candidate_landing_in_quiet_window_clamps_to_the_midnight_anchor():
 # ---------------------------------------------------------------------------
 
 
-async def test_auto_mode_recomputes_interval_and_never_stops(hass):
+def test_coordinator_starts_on_the_hot_cadence(hass):
+    """Before any refresh has run, the first poll is scheduled hot."""
+    entry = _entry()
+    entry.add_to_hass(hass)
+    coordinator = AnPostCoordinator(hass, AsyncMock(), entry)
+
+    assert coordinator.update_interval == timedelta(minutes=HOT_INTERVAL_MINUTES)
+    assert coordinator.current_tier_minutes is None
+
+
+async def test_polling_recomputes_interval_and_never_stops(hass):
     """Zero pending parcels must not suspend polling — it's the only discovery path."""
-    entry = _entry(options={CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO})
+    entry = _entry()
     entry.add_to_hass(hass)
     client = AsyncMock()
     client.async_get_parcels.return_value = []
@@ -446,8 +427,8 @@ async def test_auto_mode_recomputes_interval_and_never_stops(hass):
     assert coordinator.update_interval is not None
 
 
-async def test_auto_mode_goes_hot_for_out_for_delivery(hass):
-    entry = _entry(options={CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO})
+async def test_polling_goes_hot_for_out_for_delivery(hass):
+    entry = _entry()
     entry.add_to_hass(hass)
     client = AsyncMock()
     sample = active_sample()
@@ -467,8 +448,15 @@ async def test_auto_mode_goes_hot_for_out_for_delivery(hass):
     assert coordinator.current_tier_minutes == HOT_INTERVAL_MINUTES
 
 
-async def test_fixed_mode_keeps_configured_interval(hass):
-    entry = _entry(options={CONF_REFRESH_INTERVAL: 60})
+async def test_a_legacy_refresh_interval_option_is_ignored(hass):
+    """An entry saved while the polling dropdown existed still polls dynamically."""
+    entry = _entry(
+        options={
+            CONF_DELIVERED_FILTER_TYPE: "parcels",
+            CONF_DELIVERED_FILTER_AMOUNT: 100,
+            "refresh_interval": 60,
+        }
+    )
     entry.add_to_hass(hass)
     client = AsyncMock()
     client.async_get_parcels.return_value = []
@@ -476,5 +464,5 @@ async def test_fixed_mode_keeps_configured_interval(hass):
 
     await coordinator._async_update_data()
 
-    assert coordinator.current_tier_minutes is None
-    assert coordinator.update_interval == timedelta(minutes=60)
+    assert coordinator.current_tier_minutes == MID_INTERVAL_MINUTES
+    assert coordinator.update_interval != timedelta(minutes=60)

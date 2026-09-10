@@ -14,10 +14,7 @@ from custom_components.an_post.api import (
 from custom_components.an_post.const import (
     CONF_DELIVERED_FILTER_AMOUNT,
     CONF_DELIVERED_FILTER_TYPE,
-    CONF_REFRESH_INTERVAL,
-    DEFAULT_NEW_REFRESH_INTERVAL,
     DOMAIN,
-    REFRESH_INTERVAL_AUTO,
 )
 
 EMAIL = "user@example.test"
@@ -27,7 +24,7 @@ CREDENTIALS = {CONF_EMAIL: EMAIL, CONF_PASSWORD: PASSWORD}
 LOGIN = "custom_components.an_post.config_flow.AnPostApiClient.async_login"
 
 
-def _entry(email: str = EMAIL) -> MockConfigEntry:
+def _entry(email: str = EMAIL, **extra_options) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
         title=email,
@@ -36,7 +33,7 @@ def _entry(email: str = EMAIL) -> MockConfigEntry:
         options={
             CONF_DELIVERED_FILTER_TYPE: "days",
             CONF_DELIVERED_FILTER_AMOUNT: 7,
-            CONF_REFRESH_INTERVAL: 30,
+            **extra_options,
         },
     )
 
@@ -60,8 +57,8 @@ async def test_user_flow_creates_entry(hass):
     assert result["type"] == "create_entry"
     assert result["title"] == EMAIL
     assert result["data"] == CREDENTIALS
-    assert result["options"][CONF_REFRESH_INTERVAL] == DEFAULT_NEW_REFRESH_INTERVAL
-    assert DEFAULT_NEW_REFRESH_INTERVAL == REFRESH_INTERVAL_AUTO
+    # Polling cadence is not an option — nothing is stored for it.
+    assert "refresh_interval" not in result["options"]
 
 
 @pytest.mark.parametrize(
@@ -190,7 +187,6 @@ async def test_options_flow_saves_and_reloads(hass):
                     CONF_DELIVERED_FILTER_TYPE: "parcels",
                     CONF_DELIVERED_FILTER_AMOUNT: 5,
                 },
-                "polling": {CONF_REFRESH_INTERVAL: "60"},
             },
         )
 
@@ -198,19 +194,25 @@ async def test_options_flow_saves_and_reloads(hass):
     assert result["data"] == {
         CONF_DELIVERED_FILTER_TYPE: "parcels",
         CONF_DELIVERED_FILTER_AMOUNT: 5,
-        CONF_REFRESH_INTERVAL: 60,
     }
-    # A changed interval only takes effect on reload, so the flow schedules one
+    # A changed filter only takes effect on reload, so the flow schedules one
     # itself rather than registering an update listener (which is deprecated in
     # combination with reloading).
     schedule_reload.assert_called_once_with(entry.entry_id)
 
 
-async def test_options_flow_can_switch_to_auto(hass):
-    entry = _entry()
+async def test_options_flow_drops_a_legacy_refresh_interval_option(hass):
+    """An entry saved while the polling dropdown existed still works.
+
+    The stale ``refresh_interval`` value sits in the stored options until the
+    user next saves the form, and is simply never read; submitting the form
+    drops it without the flow tripping over it.
+    """
+    entry = _entry(refresh_interval=30)
     entry.add_to_hass(hass)
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["step_id"] == "init"
 
     with patch.object(hass.config_entries, "async_schedule_reload"):
         result = await hass.config_entries.options.async_configure(
@@ -220,19 +222,8 @@ async def test_options_flow_can_switch_to_auto(hass):
                     CONF_DELIVERED_FILTER_TYPE: "days",
                     CONF_DELIVERED_FILTER_AMOUNT: 7,
                 },
-                "polling": {CONF_REFRESH_INTERVAL: REFRESH_INTERVAL_AUTO},
             },
         )
 
     assert result["type"] == "create_entry"
-    assert result["data"][CONF_REFRESH_INTERVAL] == REFRESH_INTERVAL_AUTO
-
-
-async def test_options_flow_refresh_interval_default_is_string(hass):
-    """A stored int default must not trip the selector's "expected str" check."""
-    entry = _entry()
-    entry.add_to_hass(hass)
-
-    result = await hass.config_entries.options.async_init(entry.entry_id)
-
-    assert result["step_id"] == "init"
+    assert "refresh_interval" not in result["data"]

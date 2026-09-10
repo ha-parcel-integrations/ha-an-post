@@ -74,15 +74,14 @@ Open **Configure** on the integration entry:
 | Section | Option | Default | Description |
 |---|---|---|---|
 | Delivered parcels | Filter by / amount | last 7 days | How long delivered parcels stay visible on the delivered sensor. |
-| Polling | Refresh every | Automatic | **Automatic**, or a fixed **15 / 30 / 60 / 120 / 240 minutes**. New installs default to Automatic; existing installs keep their current fixed value until changed. See [Dynamic polling](#dynamic-polling) below. |
 
 Changing an option reloads the integration; there is no restart needed.
 
 ## Dynamic polling
 
-You can set **Refresh every** to **Automatic** instead of a fixed number of
-minutes. Instead of polling An Post at the same rate around the clock, the
-integration adjusts its own cadence to what your parcels are actually doing:
+Polling isn't a setting here — instead of checking An Post at the same rate
+around the clock, the integration adjusts its own cadence to what your parcels
+are actually doing:
 
 - **Quiet hours** — no polling between 00:00–06:00 local time, aside from one
   catch-up check at each end of that window (around midnight and around 6
@@ -101,11 +100,9 @@ An Post's current status vocabulary has no same-day-delivery category, so the
 hot tier does not trigger in practice today — the logic is in place and will
 kick in automatically if that ever changes.
 
-This is opt-in for now, but it's expected to become the default — and
-eventually the only — polling behaviour across the parcel-integrations
-suite. If you try Automatic, we'd genuinely like to hear how it goes:
-share your experience in [this
-discussion](https://github.com/orgs/ha-parcel-integrations/discussions/12).
+Installs that were still on a fixed interval move over automatically —
+nothing to change. This is now the polling behaviour across the
+parcel-integrations suite, where the cadence is no longer a setting anywhere.
 
 ## Removal
 
