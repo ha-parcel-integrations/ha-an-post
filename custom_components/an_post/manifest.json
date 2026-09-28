@@ -2,7 +2,7 @@
   "domain": "an_post",
   "name": "An Post",
   "codeowners": [
-    "@peternijssen"
+    "@peter-mdf"
   ],
   "config_flow": true,
   "documentation": "https://github.com/ha-parcel-integrations/ha-an-post",
