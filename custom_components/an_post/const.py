@@ -42,6 +42,10 @@ KNOWN_CAPABILITIES = frozenset(
 # window end, no pickup-point name, no weight/dimensions, and no history route).
 CAPABILITIES = frozenset({"delivery_window", "url"})
 
+# Fields not confirmed yet — the docs site shows them as "awaiting data".
+# Move a field into the declaration above once a real parcel shows it.
+PENDING_CAPABILITIES = frozenset({"history"})
+
 # --- Gigya (SAP Customer Data Cloud) auth chain ---------------------------
 # An Post authenticates through Gigya, not through my-deliveries-api itself.
 # ``GIGYA_API_KEY`` is a public Gigya *site* key (ships in anpost.com's own
