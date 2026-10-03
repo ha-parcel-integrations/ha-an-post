@@ -7,7 +7,7 @@
 
 > 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
 
-> ⚠️ **Pre-1.0 release.** The login → `my-deliveries-api` chain is live-validated end-to-end and the payload shape is confirmed from the app's own code, but no *populated* response has been seen yet (the account used to build this had no parcel). Unknown statuses log a one-shot `WARNING` with a link to report them — see [Troubleshooting](#troubleshooting). If you get a real An Post parcel, a diagnostics dump after it updates is the single most useful thing you can contribute.
+> ⚠️ **Pre-1.0 release.** Signing in and reading the parcel list work, but no *populated* parcel has been tracked with this integration yet, so the parcel details are not confirmed. Unknown statuses log a one-shot `WARNING` with a link to report them — see [Troubleshooting](#troubleshooting). If you get a real An Post parcel, a diagnostics dump after it updates is the single most useful thing you can contribute.
 
 A custom Home Assistant integration that tracks your [An Post](https://www.anpost.com) parcels. Sign in with your own An Post account (the same one you use on [anpost.com](https://www.anpost.com) or the *An Post: Track & Manage* app) and every parcel it already knows about is imported automatically; a parcel someone else sent you can be added to the account's watchlist from Home Assistant too.
 
