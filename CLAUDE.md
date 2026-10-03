@@ -65,9 +65,8 @@ not duplicate them here; this file is HA-integration decisions only.
   HTTP 200** — every branch is on the body's `errorCode`, never on the HTTP
   status; only `my-deliveries-api` itself uses real HTTP status codes
   (401/403 → `AnPostAuthError`).
-- **`GIGYA_API_KEY` is a public Gigya site key** (ships in anpost.com's own
-  JS) — the Canada Post `client_id` class, not a secret. Nothing else in the
-  chain is shared; the user brings their own e-mail + password.
+- **`GIGYA_API_KEY` is a public site key, not a user credential.** Nothing
+  else in the chain is shared; the user brings their own e-mail + password.
 - **The item-level status map is corrected against the canonical enum, not
   copied from An Post's own labels.** An Post's `lastTrackingEventCategoryId`
   taxonomy has "Customs" and "Delivery attempted" categories that are not
@@ -97,11 +96,10 @@ not duplicate them here; this file is HA-integration decisions only.
   is worse than no toggle"). `history` is always `None`. Revisit once a real
   detail response is seen and its top-level shape is confirmed.
 - **Naive timestamps are anchored to `Europe/Dublin`, not UTC.** An Post's
-  wire format (`yyyy-MM-dd'T'HH:mm:ss`, confirmed from the app's date
-  parser) carries no offset at all. `_DUBLIN`/`_WIRE_DATETIME_FORMAT` are
+  wire format (`yyyy-MM-dd'T'HH:mm:ss`) carries no offset at all. `_DUBLIN`/`_WIRE_DATETIME_FORMAT` are
   resolved/defined at import, never in the event loop. A value that does not
-  match that exact shape self-reports once (pre-1.0: the format is
-  APK-confirmed but has never been seen on a populated parcel) and the field
+  match that exact shape self-reports once (pre-1.0: the format has never been
+  seen on a populated parcel) and the field
   is dropped rather than guessed at.
 - **`estimatedDeliveryDateTime` is a single instant, never a window** — An
   Post's schema has no separate "to" field, so `planned_to` is always `None`.
@@ -110,8 +108,8 @@ not duplicate them here; this file is HA-integration decisions only.
   collected). `weight` / `dimensions` are always `None` — the API exposes
   neither. Reflected in `const.py`'s `CAPABILITIES` (feeds the docs site's
   comparison table) — keep the two in agreement if that ever changes.
-- **Pre-1.0 self-reporting**, since the payload shape is APK-confirmed but no
-  *populated* body has ever been seen (the test account had no parcel): a
+- **Pre-1.0 self-reporting**, since no *populated* body has ever been
+  seen (the test account had no parcel): a
   one-shot WARNING with the issue-template link fires the first time a real
   `trackingItems` item carries a field outside `_EXPECTED_ITEM_FIELDS`
   (schema drift), the first time `estimatedDeliveryDateTime` or
