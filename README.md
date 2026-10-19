@@ -5,13 +5,13 @@
 [![HACS](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> 📦 Part of [**ha-parcel-integrations**](https://ha-parcel-integrations.github.io/), a family of package-tracking integrations for Home Assistant that all publish the same parcel format, statuses and events, so they plug into cross-carrier automations and the optional [Parcel Aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator). Browse the other carriers on the website.
+>
 > 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
 
 > ⚠️ **Pre-1.0 release.** Signing in and reading the parcel list work, but no *populated* parcel has been tracked with this integration yet, so the parcel details are not confirmed. Unknown statuses log a one-shot `WARNING` with a link to report them — see [Troubleshooting](#troubleshooting). If you get a real An Post parcel, a diagnostics dump after it updates is the single most useful thing you can contribute.
 
 A custom Home Assistant integration that tracks your [An Post](https://www.anpost.com) parcels. Sign in with your own An Post account (the same one you use on [anpost.com](https://www.anpost.com) or the *An Post: Track & Manage* app) and every parcel it already knows about is imported automatically; a parcel someone else sent you can be added to the account's watchlist from Home Assistant too.
-
-Part of the [ha-parcel-integrations](https://ha-parcel-integrations.github.io/) family: it publishes the same canonical parcel format, statuses and events as the other carrier integrations, so it plugs straight into the [Parcel Aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) and cross-carrier automations.
 
 ## Contents
 
