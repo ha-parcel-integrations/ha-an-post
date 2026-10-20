@@ -9,10 +9,11 @@ Carrier-specific here: :data:`_CATEGORY_STATUS`, :data:`_TRACE_CODE_CATEGORY`,
 :func:`normalize_parcel` and :func:`_parse_an_post_timestamp`. Everything
 else — the sort contract, the delivered filter — is suite-wide machinery.
 """
+
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 import logging
-from datetime import datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -233,11 +234,11 @@ def parse_iso(value: str | None) -> datetime | None:
     if not value:
         return None
     try:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(value))
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 
@@ -258,7 +259,7 @@ def _parse_an_post_timestamp(value: Any, *, field: str) -> str | None:
     except ValueError:
         _warn_unexpected_format(field, value)
         return None
-    return naive.replace(tzinfo=_DUBLIN).astimezone(timezone.utc).isoformat()
+    return naive.replace(tzinfo=_DUBLIN).astimezone(UTC).isoformat()
 
 
 def format_dimensions(
@@ -337,9 +338,7 @@ def normalize_parcel(raw: dict) -> dict:
         "sender": raw.get("retailerName") or None,
         "receiver": raw.get("recipientName") or raw.get("receiverName") or None,
         "status": status,
-        "raw_status": (
-            str(category_id) if category_id is not None else None
-        ),
+        "raw_status": (str(category_id) if category_id is not None else None),
         "delivered": delivered,
         "delivered_at": (
             _parse_an_post_timestamp(raw.get("dateDelivered"), field="dateDelivered")
@@ -389,14 +388,12 @@ def apply_delivered_filter(parcels: list[dict], entry: ConfigEntry) -> list[dict
     shows.
     """
     options = entry.options
-    filter_type = options.get(
-        CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE
-    )
+    filter_type = options.get(CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE)
     amount = int(
         options.get(CONF_DELIVERED_FILTER_AMOUNT, DEFAULT_DELIVERED_FILTER_AMOUNT)
     )
     if filter_type == "days":
-        cutoff = datetime.now(timezone.utc) - timedelta(days=amount)
+        cutoff = datetime.now(UTC) - timedelta(days=amount)
         return [
             parcel
             for parcel in parcels

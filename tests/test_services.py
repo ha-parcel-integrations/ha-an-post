@@ -4,11 +4,12 @@ Unlike the account-less carriers, these call the account's *live* watchlist
 endpoint (not local config-entry storage) and target one of possibly several
 configured accounts via ``config_entry_id``.
 """
+
 from unittest.mock import AsyncMock
 
-import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.exceptions import ServiceValidationError
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.an_post.api import AnPostApiError, AnPostAuthError
@@ -43,7 +44,7 @@ def test_normalize_tracking_code_strips_and_upper_cases():
 
 
 @pytest.mark.parametrize(
-    "code,expected",
+    ("code", "expected"),
     [
         ("AB123456789IE", True),
         ("ab123456789ie", False),  # not normalized here — caller normalizes first
@@ -153,8 +154,8 @@ async def test_track_parcel_surfaces_api_errors(hass):
 
 async def test_untrack_parcel_surfaces_auth_errors(hass):
     entry = _loaded_entry(hass)
-    entry.runtime_data.client.async_remove_from_watchlist.side_effect = (
-        AnPostAuthError("HTTP 401")
+    entry.runtime_data.client.async_remove_from_watchlist.side_effect = AnPostAuthError(
+        "HTTP 401"
     )
     async_setup_services(hass)
 
@@ -169,8 +170,8 @@ async def test_untrack_parcel_surfaces_auth_errors(hass):
 
 async def test_untrack_parcel_surfaces_api_errors(hass):
     entry = _loaded_entry(hass)
-    entry.runtime_data.client.async_remove_from_watchlist.side_effect = (
-        AnPostApiError("HTTP 500")
+    entry.runtime_data.client.async_remove_from_watchlist.side_effect = AnPostApiError(
+        "HTTP 500"
     )
     async_setup_services(hass)
 

@@ -1,12 +1,11 @@
 """Tests for An Post diagnostics."""
+
 from datetime import timedelta
 from unittest.mock import MagicMock
 
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 
-from custom_components.an_post.diagnostics import (
-    async_get_config_entry_diagnostics,
-)
+from custom_components.an_post.diagnostics import async_get_config_entry_diagnostics
 
 
 async def test_diagnostics_redacts_and_counts(hass):

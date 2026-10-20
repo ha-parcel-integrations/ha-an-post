@@ -2,11 +2,13 @@
 
 The parcel mapping itself is covered by ``test_parcels.py``.
 """
-from datetime import datetime, timedelta, timezone
+
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers import device_registry as dr
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.an_post.api import AnPostAuthError
@@ -137,8 +139,6 @@ async def test_first_refresh_fires_nothing(hass):
 
 
 async def test_event_carries_device_id(hass):
-    from homeassistant.helpers import device_registry as dr
-
     entry = _entry()
     entry.add_to_hass(hass)
     device = dr.async_get(hass).async_get_or_create(
@@ -149,9 +149,7 @@ async def test_event_carries_device_id(hass):
     coordinator = AnPostCoordinator(hass, client, entry)
 
     events = []
-    hass.bus.async_listen(
-        f"{DOMAIN}_parcel_status_changed", lambda e: events.append(e)
-    )
+    hass.bus.async_listen(f"{DOMAIN}_parcel_status_changed", lambda e: events.append(e))
 
     client.async_get_parcels.return_value = [_received()]
     await coordinator._async_update_data()
@@ -169,9 +167,7 @@ async def test_fires_status_changed_event(hass):
     coordinator = AnPostCoordinator(hass, client, entry)
 
     events = []
-    hass.bus.async_listen(
-        f"{DOMAIN}_parcel_status_changed", lambda e: events.append(e)
-    )
+    hass.bus.async_listen(f"{DOMAIN}_parcel_status_changed", lambda e: events.append(e))
 
     client.async_get_parcels.return_value = [_received()]
     await coordinator._async_update_data()  # first refresh: suppressed
@@ -303,8 +299,6 @@ async def test_losing_the_eta_is_silent(hass):
 # Dynamic polling (Section 2.2, account-based) — pure helpers
 # ---------------------------------------------------------------------------
 
-UTC = timezone.utc
-
 
 def test_quiet_window_is_midnight_to_six():
     assert _in_quiet_window(datetime(2026, 1, 1, 0, 0, tzinfo=UTC))
@@ -333,7 +327,10 @@ def test_stagger_is_stable_and_bounded():
 
 
 def test_tier_is_mid_when_nothing_active():
-    assert _hottest_tier_minutes([], datetime(2026, 1, 1, 12, tzinfo=UTC)) == MID_INTERVAL_MINUTES
+    assert (
+        _hottest_tier_minutes([], datetime(2026, 1, 1, 12, tzinfo=UTC))
+        == MID_INTERVAL_MINUTES
+    )
 
 
 def test_tier_is_mid_for_non_hot_statuses():

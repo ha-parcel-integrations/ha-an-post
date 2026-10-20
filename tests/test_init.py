@@ -1,17 +1,15 @@
 """Tests for An Post setup and unload."""
+
 from unittest.mock import AsyncMock, patch
 
 import aiohttp
-import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.helpers import entity_registry as er
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.an_post.api import (
-    AnPostApiError,
-    AnPostAuthError,
-)
+from custom_components.an_post.api import AnPostApiError, AnPostAuthError
 from custom_components.an_post.const import DOMAIN
 
 from .payloads import ACTIVE_CODE, active_sample

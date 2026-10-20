@@ -1,12 +1,12 @@
 """Config flow for the An Post parcel tracker integration."""
+
 from __future__ import annotations
 
-import logging
 from collections.abc import Mapping
+import logging
 from typing import Any
 
 import aiohttp
-import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -18,12 +18,9 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+import voluptuous as vol
 
-from .api import (
-    AnPostApiClient,
-    AnPostApiError,
-    AnPostAuthError,
-)
+from .api import AnPostApiClient, AnPostApiError, AnPostAuthError
 from .const import (
     CONF_DELIVERED_FILTER_AMOUNT,
     CONF_DELIVERED_FILTER_TYPE,
@@ -60,9 +57,7 @@ class AnPostConfigFlow(ConfigFlow, domain=DOMAIN):
         Uses the HA-managed session: this is a one-shot check, so it does not
         need the per-entry cookie jar that ``__init__.py`` sets up.
         """
-        client = AnPostApiClient(
-            email, password, async_get_clientsession(self.hass)
-        )
+        client = AnPostApiClient(email, password, async_get_clientsession(self.hass))
         await client.async_login()
 
     async def async_step_user(
@@ -144,9 +139,7 @@ class AnPostOptionsFlowHandler(OptionsFlow):
             delivered = user_input["delivered"]
             # Reload so a changed filter takes effect immediately. No update
             # listener is registered — combining the two is deprecated.
-            self.hass.config_entries.async_schedule_reload(
-                self.config_entry.entry_id
-            )
+            self.hass.config_entries.async_schedule_reload(self.config_entry.entry_id)
             return self.async_create_entry(
                 title="",
                 data={

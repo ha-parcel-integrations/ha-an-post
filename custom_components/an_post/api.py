@@ -26,8 +26,10 @@ Contract the config flow / coordinator / services rely on:
 The session is injected rather than created here, so the caller controls the
 cookie jar (see ``__init__.py`` for why each entry needs its own).
 """
+
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 import aiohttp
@@ -126,8 +128,7 @@ class AnPostAuth:
             raise AnPostAuthError(f"invalid credentials (errorCode {error_code})")
         if error_code != GIGYA_ERROR_OK:
             raise AnPostApiError(
-                f"login failed (errorCode {error_code}): "
-                f"{payload.get('errorMessage')}"
+                f"login failed (errorCode {error_code}): {payload.get('errorMessage')}"
             )
 
         uid = payload.get("UID")
@@ -174,10 +175,8 @@ class AnPostAuth:
             cookie = response.cookies.get("gmid")
             # The body is informational only (``hasGmid``); a malformed one
             # must not block the flow that follows.
-            try:
+            with contextlib.suppress(ValueError):
                 await response.json(content_type=None)
-            except ValueError:
-                pass
         return cookie.value if cookie else ""
 
     async def _get_jwt(self) -> dict[str, Any]:
@@ -224,9 +223,7 @@ class AnPostApiClient:
         """
         id_token = await self._auth.async_id_token()
         url = TRACKING_ITEMS_URL.format(uid=self._auth.uid)
-        async with self._session.get(
-            url, headers=_auth_header(id_token)
-        ) as response:
+        async with self._session.get(url, headers=_auth_header(id_token)) as response:
             if response.status in (401, 403):
                 # The session expired mid-poll; the coordinator turns this
                 # into a reauth via ConfigEntryAuthFailed.

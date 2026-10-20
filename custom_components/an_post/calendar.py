@@ -1,4 +1,5 @@
 """Calendar platform for the An Post parcel tracker integration."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -20,14 +21,15 @@ PARALLEL_UPDATES = 0
 _DEFAULT_EVENT_DURATION = timedelta(hours=1)
 
 
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: AnPostConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the An Post deliveries calendar from a config entry."""
-    async_add_entities([AnPostDeliveriesCalendar(entry.runtime_data.coordinator, entry)])
+    async_add_entities(
+        [AnPostDeliveriesCalendar(entry.runtime_data.coordinator, entry)]
+    )
 
 
 class AnPostDeliveriesCalendar(CoordinatorEntity[AnPostCoordinator], CalendarEntity):

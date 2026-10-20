@@ -7,6 +7,7 @@ reconstructed from the app's models rather than redacted from the wire; the
 runtime *values* (is ``estimatedDeliveryDateTime`` ever populated, the literal
 free text) are the one open question — see the module's pre-1.0 WARNINGs.
 """
+
 from __future__ import annotations
 
 ACTIVE_CODE = "AB999999999IE"

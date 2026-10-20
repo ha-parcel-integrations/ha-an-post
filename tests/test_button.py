@@ -1,4 +1,5 @@
 """Tests for the An Post refresh button."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 from custom_components.an_post.button import AnPostRefreshButton

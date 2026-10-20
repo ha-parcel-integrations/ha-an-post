@@ -4,6 +4,7 @@ Uses a small ``FakeSession``/``FakeResponse`` pair rather than mock chains:
 the auth flow makes several calls in sequence (bootstrap -> login -> getJWT),
 and queuing canned responses per HTTP method keeps each test's intent visible.
 """
+
 import json
 
 import aiohttp
@@ -80,22 +81,24 @@ class FakeSession:
 
 
 def _bootstrap_ok(gmid: str = "gmid-value") -> FakeResponse:
-    return FakeResponse(200, {"errorCode": 0, "hasGmid": "ver4"}, {"gmid": _Cookie(gmid)})
+    return FakeResponse(
+        200, {"errorCode": 0, "hasGmid": "ver4"}, {"gmid": _Cookie(gmid)}
+    )
 
 
-def _login_ok(uid: str = "uid-123", login_token: str = "login-token-abc") -> FakeResponse:
+def _login_ok(uid: str = "uid-123", cookie: str = "login-token-abc") -> FakeResponse:
     return FakeResponse(
         200,
         {
             "errorCode": GIGYA_ERROR_OK,
             "UID": uid,
-            "sessionInfo": {"cookieValue": login_token, "cookieName": "glt"},
+            "sessionInfo": {"cookieValue": cookie, "cookieName": "glt"},
         },
     )
 
 
-def _jwt_ok(id_token: str = "id-token-xyz") -> FakeResponse:
-    return FakeResponse(200, {"errorCode": GIGYA_ERROR_OK, "id_token": id_token})
+def _jwt_ok(jwt: str = "id-token-xyz") -> FakeResponse:
+    return FakeResponse(200, {"errorCode": GIGYA_ERROR_OK, "id_token": jwt})
 
 
 def _auth(session: FakeSession) -> AnPostAuth:
@@ -114,7 +117,7 @@ def _client(session: FakeSession) -> AnPostApiClient:
 async def test_login_sets_uid_and_captures_gmid_cookie():
     session = FakeSession()
     session.queue("GET", _bootstrap_ok("captured-gmid"))
-    session.queue("POST", _login_ok(uid="uid-1", login_token="token-1"))
+    session.queue("POST", _login_ok(uid="uid-1", cookie="token-1"))
 
     auth = _auth(session)
     await auth.async_login()
@@ -152,7 +155,9 @@ async def test_login_raises_api_error_on_other_gigya_error():
     """A non-credential Gigya error must not look like bad credentials."""
     session = FakeSession()
     session.queue("GET", _bootstrap_ok())
-    session.queue("POST", FakeResponse(200, {"errorCode": 500001, "errorMessage": "boom"}))
+    session.queue(
+        "POST", FakeResponse(200, {"errorCode": 500001, "errorMessage": "boom"})
+    )
 
     with pytest.raises(AnPostApiError) as err:
         await _auth(session).async_login()
@@ -162,7 +167,9 @@ async def test_login_raises_api_error_on_other_gigya_error():
 async def test_login_raises_on_missing_uid_or_token():
     session = FakeSession()
     session.queue("GET", _bootstrap_ok())
-    session.queue("POST", FakeResponse(200, {"errorCode": 0, "UID": "uid-1"}))  # no sessionInfo
+    session.queue(
+        "POST", FakeResponse(200, {"errorCode": 0, "UID": "uid-1"})
+    )  # no sessionInfo
 
     with pytest.raises(AnPostApiError):
         await _auth(session).async_login()
@@ -216,7 +223,9 @@ async def test_id_token_reauthenticates_once_on_expired_session():
     session = FakeSession()
     session.queue("GET", _bootstrap_ok())
     session.queue("POST", _login_ok())  # initial login (not yet authenticated)
-    session.queue("POST", FakeResponse(200, {"errorCode": GIGYA_ERROR_PERMISSION_DENIED}))
+    session.queue(
+        "POST", FakeResponse(200, {"errorCode": GIGYA_ERROR_PERMISSION_DENIED})
+    )
     session.queue("GET", _bootstrap_ok())
     session.queue("POST", _login_ok())  # re-login after expiry
     session.queue("POST", _jwt_ok("token-after-relogin"))
@@ -230,7 +239,9 @@ async def test_id_token_raises_auth_error_when_relogin_also_fails():
     session = FakeSession()
     session.queue("GET", _bootstrap_ok())
     session.queue("POST", _login_ok())
-    session.queue("POST", FakeResponse(200, {"errorCode": GIGYA_ERROR_PERMISSION_DENIED}))
+    session.queue(
+        "POST", FakeResponse(200, {"errorCode": GIGYA_ERROR_PERMISSION_DENIED})
+    )
     session.queue("GET", _bootstrap_ok())
     session.queue(
         "POST", FakeResponse(200, {"errorCode": GIGYA_ERROR_INVALID_CREDENTIALS})
@@ -283,7 +294,9 @@ async def test_get_parcels_returns_the_tracking_items_list():
     session = _authed_session()
     session.queue(
         "GET",
-        FakeResponse(200, {"success": True, "errors": [], "trackingItems": [active_sample()]}),
+        FakeResponse(
+            200, {"success": True, "errors": [], "trackingItems": [active_sample()]}
+        ),
     )
 
     parcels = await _client(session).async_get_parcels()
@@ -300,7 +313,8 @@ async def test_get_parcels_skips_non_dict_entries():
     session.queue(
         "GET",
         FakeResponse(
-            200, {"success": True, "errors": [], "trackingItems": [active_sample(), "junk"]}
+            200,
+            {"success": True, "errors": [], "trackingItems": [active_sample(), "junk"]},
         ),
     )
     assert len(await _client(session).async_get_parcels()) == 1
@@ -312,7 +326,11 @@ async def test_get_parcels_raises_on_success_false():
         "GET",
         FakeResponse(
             200,
-            {"success": False, "errors": [{"message": "no account"}], "trackingItems": []},
+            {
+                "success": False,
+                "errors": [{"message": "no account"}],
+                "trackingItems": [],
+            },
         ),
     )
     with pytest.raises(AnPostApiError, match="no account"):
@@ -350,7 +368,10 @@ async def test_get_parcels_raises_on_non_object_body():
 
 async def test_get_parcels_raises_without_a_tracking_items_list():
     session = _authed_session()
-    session.queue("GET", FakeResponse(200, {"success": True, "errors": [], "trackingItems": "nope"}))
+    session.queue(
+        "GET",
+        FakeResponse(200, {"success": True, "errors": [], "trackingItems": "nope"}),
+    )
     with pytest.raises(AnPostApiError):
         await _client(session).async_get_parcels()
 

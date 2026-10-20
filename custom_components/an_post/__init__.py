@@ -1,8 +1,9 @@
 """An Post parcel tracker custom component for Home Assistant."""
+
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
+import logging
 from typing import Any
 
 import aiohttp
@@ -12,11 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import (
-    AnPostApiClient,
-    AnPostApiError,
-    AnPostAuthError,
-)
+from .api import AnPostApiClient, AnPostApiError, AnPostAuthError
 from .const import DOMAIN, PLATFORMS
 from .coordinator import AnPostCoordinator
 from .services import async_setup_services, async_unload_services
@@ -37,9 +34,7 @@ class AnPostData:
 type AnPostConfigEntry = ConfigEntry[AnPostData]
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: AnPostConfigEntry
-) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> bool:
     """Set up An Post from a config entry."""
     # Each config entry needs its own cookie jar, or two accounts overwrite
     # each other's auth cookies in the shared session. The connector is reused
@@ -49,9 +44,7 @@ async def async_setup_entry(
         connector_owner=False,
         cookie_jar=aiohttp.CookieJar(),
     )
-    client = AnPostApiClient(
-        entry.data[CONF_EMAIL], entry.data[CONF_PASSWORD], session
-    )
+    client = AnPostApiClient(entry.data[CONF_EMAIL], entry.data[CONF_PASSWORD], session)
 
     try:
         account = await client.async_login()
@@ -100,9 +93,7 @@ async def async_setup_entry(
     return True
 
 
-async def async_unload_entry(
-    hass: HomeAssistant, entry: AnPostConfigEntry
-) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> bool:
     """Unload an An Post config entry."""
     if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         return False
