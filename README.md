@@ -54,7 +54,11 @@ A custom Home Assistant integration that tracks your [An Post](https://www.anpos
 ### HACS (recommended)
 
 1. Open HACS and search for **An Post**.
-2. Install it and restart Home Assistant.
+2. Install it and restart Home Assistant if HACS asks you to.
+
+Or click the button below to open it directly in HACS:
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-parcel-integrations&repository=ha-an-post&category=integration)
 
 ### Manual
 
@@ -62,7 +66,9 @@ Copy `custom_components/an_post` into your `config/custom_components/` folder an
 
 ## Configuration
 
-Add the integration via **Settings → Devices & Services → Add Integration → An Post**, then enter your An Post account's e-mail address and password. The integration signs in through the same identity service the app and website use and imports every parcel already on the account.
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=an_post)
+
+Or set it up by hand: add the integration via **Settings → Devices & Services → Add Integration → An Post**, then enter your An Post account's e-mail address and password. The integration signs in through the same identity service the app and website use and imports every parcel already on the account.
 
 To add a parcel the account has not linked yet, use the [`an_post.track_parcel`](#services) service (or a [dashboard button](examples/dashboards/add_parcel_card.yaml)) — it is added to the account's own watchlist, so it also shows up if you open the An Post app.
 
