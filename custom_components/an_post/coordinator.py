@@ -165,12 +165,27 @@ class AnPostCoordinator(DataUpdateCoordinator[list[dict]]):
         return self._cached_device_id
 
     async def _async_update_data(self) -> list[dict]:
+        try:
+            return await self._async_poll()
+        except Exception:
+            # The base class keeps the last interval after a failure, which
+            # after an overnight poll is the whole quiet window.
+            now = dt_util.now()
+            self.update_interval = _next_update_interval(
+                now,
+                _hottest_tier_minutes(self.data or [], now),
+                self.config_entry.entry_id,
+            )
+            raise
+
+    async def _async_poll(self) -> list[dict]:
         """Fetch the account's parcels and split into active vs delivered.
 
         ``aiohttp.ClientError`` and ``AnPostApiError`` are deliberately
-        not caught — ``DataUpdateCoordinator`` turns them into ``UpdateFailed``
-        with backoff. Only an expired session needs special handling, because
-        retrying it forever would never recover.
+        not caught — ``DataUpdateCoordinator`` turns them into a failed
+        update and the wrapper above reschedules it. Only an expired session
+        needs special handling, because retrying it forever would never
+        recover.
         """
         try:
             raws = await self._client.async_get_parcels()

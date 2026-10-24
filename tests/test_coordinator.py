@@ -463,3 +463,25 @@ async def test_a_legacy_refresh_interval_option_is_ignored(hass):
 
     assert coordinator.current_tier_minutes == MID_INTERVAL_MINUTES
     assert coordinator.update_interval != timedelta(minutes=60)
+
+
+async def test_failed_poll_drops_the_overnight_interval(hass):
+    entry = _entry()
+    entry.add_to_hass(hass)
+    client = AsyncMock()
+    client.async_get_parcels.return_value = [active_sample(), delivered_sample()]
+    coordinator = AnPostCoordinator(hass, client, entry)
+    coordinator.update_interval = timedelta(hours=5, minutes=40)
+
+    noon = datetime(2026, 1, 15, 12, tzinfo=UTC)
+    with (
+        patch.object(coordinator, "_async_poll", side_effect=TimeoutError),
+        patch("custom_components.an_post.coordinator.dt_util.now", return_value=noon),
+        pytest.raises(TimeoutError),
+    ):
+        await coordinator._async_update_data()
+
+    assert coordinator.update_interval is not None
+    assert coordinator.update_interval <= timedelta(
+        minutes=MID_INTERVAL_MINUTES + STAGGER_MINUTES
+    )
