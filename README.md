@@ -220,7 +220,7 @@ logger:
 | `invalid_auth` error during setup | Wrong e-mail or password |
 | `cannot_connect` error during setup | An Post's identity service or `my-deliveries-api` is unreachable; check your network |
 | A parcel shows `unknown` | An Post has not scanned it yet (typical right after adding it to the watchlist), or the tracking-event category is one we have not mapped |
-| A status logs "Unrecognised An Post tracking-event category" | Please [open an issue](https://github.com/ha-parcel-integrations/ha-an-post/issues/new) with the logged line so the mapping can be extended |
+| A status logs "Unrecognised An Post tracking-event category" | Please [open an issue](https://github.com/ha-parcel-integrations/ha-an-post/issues/new?template=unrecognised_status.yml) with the logged line so the mapping can be extended |
 | Reauth notification appears | The stored session expired or the password changed on An Post's side — sign in again on the notification |
 
 ## Related integrations
