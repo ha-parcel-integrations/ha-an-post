@@ -123,6 +123,7 @@ The integration creates one device per An Post account, named **`An Post (<your-
 | `An Post (account) Parcel <barcode>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `An Post (account) Next delivery` | Earliest expected delivery moment across all active parcels |
 | `An Post (account) Delivered parcels` | Recently delivered parcels (see the retention option) |
+| `An Post (account) Deliveries` | Read-only calendar of expected deliveries, no extra API calls |
 | `An Post (account) Last successful update` | Diagnostic: when An Post was last polled successfully |
 
 A delivered parcel moves from its per-parcel sensor to the delivered sensor automatically.
