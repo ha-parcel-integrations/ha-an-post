@@ -11,7 +11,7 @@ from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
-    OptionsFlow,
+    OptionsFlowWithReload,
 )
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import callback
@@ -124,7 +124,7 @@ class AnPostConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-class AnPostOptionsFlowHandler(OptionsFlow):
+class AnPostOptionsFlowHandler(OptionsFlowWithReload):
     """Manage delivered retention in one sectioned form.
 
     Polling cadence is not configurable — the coordinator drives it from
@@ -137,9 +137,8 @@ class AnPostOptionsFlowHandler(OptionsFlow):
         """Show and handle the single sectioned options form."""
         if user_input is not None:
             delivered = user_input["delivered"]
-            # Reload so a changed filter takes effect immediately. No update
-            # listener is registered — combining the two is deprecated.
-            self.hass.config_entries.async_schedule_reload(self.config_entry.entry_id)
+            # OptionsFlowWithReload reloads once the new options are saved; a
+            # reload scheduled here would start before that, on the old ones.
             return self.async_create_entry(
                 title="",
                 data={

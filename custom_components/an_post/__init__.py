@@ -87,9 +87,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> bo
     # two services and target one another via a config_entry_id field.
     async_setup_services(hass)
 
-    # No entry.add_update_listener: the options flow calls
-    # async_schedule_reload itself. Combining an update listener with a
-    # reload-on-update flow is deprecated and becomes an error in HA 2026.12+.
+    # No entry.add_update_listener: the options flow is an
+    # OptionsFlowWithReload, which may not be combined with one.
     return True
 
 
