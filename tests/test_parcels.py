@@ -139,6 +139,10 @@ def test_normalize_warns_once_on_unparseable_timestamp(caplog):
     assert caplog.text.count("estimatedDeliveryDateTime") >= 1
 
 
+def test_format_dimensions_rounds_the_text():
+    assert format_dimensions(27.9, 5.1, 27.9)["text"] == "28 x 5 x 28 cm"
+
+
 def test_format_dimensions_needs_all_three_axes():
     assert format_dimensions(30, 20, 10) == {
         "length": 30,
