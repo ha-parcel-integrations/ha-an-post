@@ -39,7 +39,7 @@ A custom Home Assistant integration that tracks your [An Post](https://www.anpos
 - Auto-imports every parcel your An Post account already knows about — no per-parcel setup
 - `an_post.track_parcel` / `an_post.untrack_parcel` services add or remove a bare tracking number from the account's own watchlist, for parcels the account has not linked yet
 - Per-parcel sensor with the canonical status (`registered` / `in_transit` / `delivered` / `returning` / `problem` / …), An Post's own category id, the expected delivery moment and a tracking deep-link
-- Summary sensors: incoming parcels, next delivery, recently delivered parcels
+- Summary sensors: incoming parcels, next delivery, en route to pickup point, awaiting pickup, recently delivered parcels
 - Read-only **Deliveries** calendar with the expected delivery moments
 - Events + device triggers for no-code automations (parcel registered, status changed, delivered, delivery time changed)
 - Automatic re-authentication when the An Post session expires
@@ -122,6 +122,8 @@ The integration creates one device per An Post account, named **`An Post (<your-
 | `An Post (account) Incoming parcels` | Number of active tracked parcels, full list under the `parcels` attribute |
 | `An Post (account) Parcel <barcode>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `An Post (account) Next delivery` | Earliest expected delivery moment across all active parcels |
+| `An Post (account) En route to pickup point` | Active parcels heading to a pickup point or locker, full list under `parcels` |
+| `An Post (account) Awaiting pickup` | Parcels ready to collect at a pickup point (reads 0 until An Post reports that status) |
 | `An Post (account) Delivered parcels` | Recently delivered parcels (see the retention option) |
 | `An Post (account) Deliveries` | Read-only calendar of expected deliveries, no extra API calls |
 | `An Post (account) Last successful update` | Diagnostic: when An Post was last polled successfully |
@@ -146,10 +148,10 @@ Every parcel exposed on a sensor attribute uses a carrier-agnostic shape:
 | `raw_status` | string \| null | An Post's own numeric tracking-event category (power users) |
 | `delivered` | bool | Whether the parcel has been delivered |
 | `delivered_at` | ISO 8601 \| null | Delivery moment, if known |
-| `planned_from` | ISO 8601 \| null | Expected delivery moment. An Post reports a single instant, never a window, so this is the only ETA field that is ever populated. |
-| `planned_to` | ISO 8601 \| null | Always `null` — An Post's schema has no separate window end. |
-| `pickup` | bool | Always `false` — An Post's own status vocabulary has no "ready for collection" category. |
-| `pickup_point` | string \| null | Always `null` — the payload carries no pickup-point name. |
+| `planned_from` | ISO 8601 \| null | Expected delivery moment, in Irish time. Empty once the parcel is delivered or returning. |
+| `planned_to` | ISO 8601 \| null | End of that same Irish day (23:59:59), because An Post gives one moment, not a window. Empty when `planned_from` is. |
+| `pickup` | bool | `true` when the parcel has a locker PIN (or has reached a pickup point). |
+| `pickup_point` | string \| null | Always `null` for now — the payload carries no pickup-point name. |
 | `url` | string \| null | Deep link to the parcel's tracking page on anpost.com |
 | `weight` | float \| null | Always `null` — An Post does not expose parcel weight. |
 | `dimensions` | dict \| null | Always `null` — An Post does not expose parcel dimensions. |
@@ -165,7 +167,7 @@ The `status` field is the carrier-agnostic enum shared by the whole integration 
 | `registered` | Item received into the network, or info received electronically ahead of the physical scan | `Item received`, `Info received` |
 | `in_transit` | Moving through the network, including customs clearance | `In transit`, `Sorting`, `Customs` |
 | `out_for_delivery` | *(never produced — An Post's own vocabulary has no same-day-delivery category)* | — |
-| `at_pickup_point` | *(never produced — no "ready for collection" category, and no pickup-point field on the payload)* | — |
+| `at_pickup_point` | *(not produced yet — no "ready for collection" category has been seen)* | — |
 | `delivered` | Delivered | `Delivered` |
 | `returning` | Going back to the sender | `Return to sender` |
 | `problem` | An Post reports a delivery attempt or other exception | `Delivery attempted` |

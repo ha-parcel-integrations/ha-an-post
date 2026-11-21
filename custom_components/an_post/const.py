@@ -39,13 +39,14 @@ KNOWN_CAPABILITIES = frozenset(
 # Which optional contract fields this carrier's API actually populates — feeds
 # the comparison table on the docs site. Keep in lockstep with
 # normalize_parcel() in parcels.py: everything not listed here comes back as a
-# literal None there. An Post exposes a single estimated-delivery instant (no
-# window end, no pickup-point name, no weight/dimensions, and no history route).
+# literal None there. An Post exposes a single estimated-delivery moment (the
+# window end is the end of that day), no pickup-point name, no
+# weight/dimensions, and no history route.
 CAPABILITIES = frozenset({"delivery_window", "url"})
 
 # Fields not confirmed yet — the docs site shows them as "awaiting data".
 # Move a field into the declaration above once a real parcel shows it.
-PENDING_CAPABILITIES = frozenset({"history"})
+PENDING_CAPABILITIES = frozenset({"history", "pickup_point"})
 
 # --- Gigya (SAP Customer Data Cloud) auth chain ---------------------------
 # An Post authenticates through Gigya, not through my-deliveries-api itself.

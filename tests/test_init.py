@@ -47,6 +47,12 @@ async def test_setup_and_unload(hass):
     assert incoming is not None
     assert incoming.state == "1"
 
+    # Both pickup sensors are registered even with no pickup parcel.
+    for key in ("en_route_to_pickup_point", "awaiting_pickup"):
+        state = hass.states.get(f"sensor.an_post_user_example_test_{key}")
+        assert state is not None
+        assert state.state == "0"
+
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.NOT_LOADED
@@ -167,4 +173,26 @@ async def test_per_parcel_sensor_spawn_and_remove(hass):
                 "sensor", DOMAIN, f"{entry.entry_id}_{ACTIVE_CODE}"
             )
             is None
+        )
+
+
+async def test_restored_pickup_sensors_are_not_swept_as_stale(hass):
+    entry = _entry()
+    entry.add_to_hass(hass)
+    registry = er.async_get(hass)
+    for key in ("awaiting_pickup", "en_route_to_pickup_point"):
+        registry.async_get_or_create(
+            "sensor", "an_post", f"{entry.entry_id}_{key}", config_entry=entry
+        )
+
+    with (
+        patch(f"{CLIENT}.async_login", new=AsyncMock(return_value={})),
+        patch(f"{CLIENT}.async_get_parcels", new=AsyncMock(return_value=[])),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    for key in ("awaiting_pickup", "en_route_to_pickup_point"):
+        assert registry.async_get_entity_id(
+            "sensor", "an_post", f"{entry.entry_id}_{key}"
         )

@@ -5,7 +5,9 @@ from unittest.mock import MagicMock
 
 from custom_components.an_post.const import ParcelStatus
 from custom_components.an_post.sensor import (
+    AnPostAwaitingPickupSensor,
     AnPostDeliveredParcelsSensor,
+    AnPostEnRouteToPickupPointSensor,
     AnPostIncomingParcelsSensor,
     AnPostLastUpdateSensor,
     AnPostNextDeliverySensor,
@@ -66,12 +68,12 @@ def test_parcel_sensor_missing_barcode():
 def test_next_delivery_picks_earliest():
     coordinator = _coordinator(
         [
-            _parcel("A", planned_from="2026-05-02T10:00:00Z"),
-            _parcel("B", planned_from="2026-05-01T10:00:00Z"),
+            _parcel("A", planned_from="2099-05-02T10:00:00Z"),
+            _parcel("B", planned_from="2099-05-01T10:00:00Z"),
         ]
     )
     sensor = AnPostNextDeliverySensor(coordinator, _entry())
-    assert sensor.native_value == datetime(2026, 5, 1, 10, 0, tzinfo=UTC)
+    assert sensor.native_value == datetime(2099, 5, 1, 10, 0, tzinfo=UTC)
     assert sensor.extra_state_attributes["barcode"] == "B"
 
 
@@ -85,7 +87,7 @@ def test_next_delivery_skips_unparseable_moment():
     coordinator = _coordinator(
         [
             _parcel("A", planned_from="not-a-date"),
-            _parcel("B", planned_from="2026-05-01T10:00:00Z"),
+            _parcel("B", planned_from="2099-05-01T10:00:00Z"),
         ]
     )
     sensor = AnPostNextDeliverySensor(coordinator, _entry())
@@ -107,3 +109,45 @@ def test_last_update_sensor():
     coordinator.last_success_time = moment
     sensor = AnPostLastUpdateSensor(coordinator, _entry())
     assert sensor.native_value == moment
+
+
+def test_next_delivery_skips_a_window_that_has_ended():
+    coordinator = _coordinator(
+        [
+            _parcel("OLD", planned_from="2000-05-01T10:00:00Z"),
+            _parcel("NEW", planned_from="2099-05-03T10:00:00Z"),
+        ]
+    )
+    sensor = AnPostNextDeliverySensor(coordinator, _entry())
+    assert sensor.extra_state_attributes["barcode"] == "NEW"
+
+
+def test_en_route_counts_only_active_pickup_parcels_not_yet_there():
+    coordinator = _coordinator(
+        [
+            _parcel("A", pickup=True),
+            _parcel("B", pickup=True, status=ParcelStatus.AT_PICKUP_POINT),
+            _parcel("C", pickup=True, status=ParcelStatus.RETURNING),
+            _parcel("D", pickup=True, status=ParcelStatus.DELIVERED),
+            _parcel("E", pickup=False),
+        ]
+    )
+    sensor = AnPostEnRouteToPickupPointSensor(coordinator, _entry())
+    assert sensor.native_value == 2
+    assert [p["barcode"] for p in sensor.extra_state_attributes["parcels"]] == [
+        "A",
+        "D",
+    ]
+
+
+def test_awaiting_pickup_counts_only_parcels_at_the_point():
+    coordinator = _coordinator(
+        [
+            _parcel("A", pickup=True),
+            _parcel("B", pickup=True, status=ParcelStatus.AT_PICKUP_POINT),
+            _parcel("C", status=ParcelStatus.DELIVERED),
+        ]
+    )
+    sensor = AnPostAwaitingPickupSensor(coordinator, _entry())
+    assert sensor.native_value == 1
+    assert sensor.extra_state_attributes["parcels"][0]["barcode"] == "B"

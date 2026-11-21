@@ -75,9 +75,8 @@ not duplicate them here; this file is HA-integration decisions only.
   customs-clearance status: still moving through the network, not a problem
   on its own) and "Delivery attempted" folds into `PROBLEM`. **An Post's own
   vocabulary has no locker/"ready for collection" category and the payload
-  carries no pickup-point name/location field** — `pickup` and
-  `pickup_point` are therefore always `False` / `None`; `AT_PICKUP_POINT` is
-  never produced by this carrier's map, and neither is `OUT_FOR_DELIVERY`
+  carries no pickup-point name/location field** — `pickup_point` is always
+  `None`, and `AT_PICKUP_POINT` is not produced by this carrier's map yet, and neither is `OUT_FOR_DELIVERY`
   (no same-day-delivery category exists either).
 - **Event-level status has a two-step fallback.** Each `TrackingItemHistory`
   entry's own `webCategoryId` reuses the same 0–7 map as the item level; when
@@ -101,8 +100,24 @@ not duplicate them here; this file is HA-integration decisions only.
   match that exact shape self-reports once (pre-1.0: the format has never been
   seen on a populated parcel) and the field
   is dropped rather than guessed at.
-- **`estimatedDeliveryDateTime` is a single instant, never a window** — An
-  Post's schema has no separate "to" field, so `planned_to` is always `None`.
+- **`estimatedDeliveryDateTime` is a single moment, never a window** — An
+  Post's schema has no separate "to" field, so `planned_from` is that moment
+  (Dublin offset, not UTC) and `planned_to` is 23:59:59 of the same Dublin day,
+  both built by `planned_window`. `planned_for_status` empties them for
+  `DELIVERED` and `RETURNING`. The helper block in `parcels.py` is shared
+  suite-wide: don't edit it here.
+- **`pickup` follows the locker route flag**: `is_pickup` is fed `True` when
+  the payload's `parcelLockerPin` is present, else `None`, so a parcel counts
+  as pickup once it has a locker PIN or reaches `AT_PICKUP_POINT`.
+  `pickup_point` stays `None` (no name field). Both `awaiting_pickup` and
+  `en_route_to_pickup_point` sensors exist and read 0 until then.
+- **`raw` omits `parcelLockerPin` and `deliveryPin`** (the one deliberate
+  omission): they open a locker, so `normalize_parcel` reads the route flag
+  first and publishes a copy of the payload without them. Diagnostics still
+  redact both.
+- **Pending, never seen on a real parcel**: a populated `parcelLockerPin`, a
+  locker/"ready for collection" status category (so `AT_PICKUP_POINT`), and a
+  pickup-point name. Listed in `PENDING_CAPABILITIES` (`pickup_point`).
 - **`receiver` prefers `recipientName`** (the label's addressee) **and falls
   back to `receiverName`** (who actually took delivery, populated once
   collected). `weight` / `dimensions` are always `None` — the API exposes
@@ -133,10 +148,10 @@ not duplicate them here; this file is HA-integration decisions only.
   `^[A-Z]{2}\d{9}IE$` (`const.py:TRACKING_CODE_PATTERN`) — validated in
   `services.py` before the watchlist call is made.
 
-**No `awaiting_pickup` sensor — structurally exempt, not an oversight.** An
-Post's own vocabulary has no locker / "ready for collection" category, so
-`ParcelStatus.AT_PICKUP_POINT` is never produced by `_CATEGORY_STATUS` in
-`parcels.py`. See the *Parcel contract* section of `CONVENTIONS.md`.
+**Pickup sensors exist but are unconfirmed.** `awaiting_pickup` counts
+`AT_PICKUP_POINT` parcels and `en_route_to_pickup_point` counts active pickup
+parcels not yet there (excluding `AT_PICKUP_POINT` and `RETURNING`). Until a
+real parcel shows a locker status category, `awaiting_pickup` stays at 0.
 
 ## Divergences from the scaffold
 

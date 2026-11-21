@@ -212,21 +212,33 @@ def test_normalize_delivered_parcel():
     assert parcel["history"] is None  # no include_history knob — see const.py
 
 
-def test_normalize_active_parcel_has_a_point_eta_never_a_window():
+def test_normalize_raw_never_carries_locker_pins():
+    sample = delivered_sample()
+    sample["parcelLockerPin"] = "123456"
+    sample["deliveryPin"] = "654321"
+    parcel = normalize_parcel(sample)
+    assert parcel["pickup"] is True
+    assert "parcelLockerPin" not in parcel["raw"]
+    assert "deliveryPin" not in parcel["raw"]
+    assert sample["parcelLockerPin"] == "123456"
+
+
+def test_normalize_active_parcel_runs_to_the_end_of_the_dublin_day():
     parcel = normalize_parcel(active_sample())
     assert parcel["status"] == ParcelStatus.IN_TRANSIT
     assert parcel["delivered"] is False
-    assert parcel["planned_from"] == "2026-04-29T14:00:00+00:00"
-    # An Post's schema has only one ETA field: never a window.
-    assert parcel["planned_to"] is None
+    assert parcel["planned_from"] == "2026-04-29T15:00:00+01:00"
+    assert parcel["planned_to"] == "2026-04-29T23:59:59+01:00"
 
 
-def test_normalize_never_reports_pickup():
-    """An Post's own vocabulary has no "ready for collection" category, and the
-    payload carries no pickup-point name/location field."""
-    parcel = normalize_parcel(active_sample())
-    assert parcel["pickup"] is False
-    assert parcel["pickup_point"] is None
+def test_normalize_pickup_follows_the_locker_pin():
+    """No pickup-point name exists on the payload; the locker PIN is the flag."""
+    plain = normalize_parcel(active_sample())
+    assert plain["pickup"] is False
+    assert plain["pickup_point"] is None
+    locker = normalize_parcel({**active_sample(), "parcelLockerPin": "1234"})
+    assert locker["pickup"] is True
+    assert locker["pickup_point"] is None
 
 
 def test_capabilities_are_known_values():
@@ -236,7 +248,7 @@ def test_capabilities_are_known_values():
 
 def test_capabilities_match_the_no_pickup_no_weight_gap():
     """CAPABILITIES must agree with test_normalize_delivered_parcel /
-    test_normalize_never_reports_pickup."""
+    test_normalize_pickup_follows_the_locker_pin."""
     assert {"delivery_window", "url"} == CAPABILITIES
 
 
@@ -270,7 +282,10 @@ def test_normalize_receiver_falls_back_to_receiver_name():
 
 def test_normalize_keeps_raw_payload():
     raw = active_sample()
-    assert normalize_parcel(raw)["raw"] is raw
+    pins = {"parcelLockerPin", "deliveryPin"}
+    assert normalize_parcel(raw)["raw"] == {
+        k: v for k, v in raw.items() if k not in pins
+    }
 
 
 def test_normalize_warns_once_on_unexpected_field(caplog):

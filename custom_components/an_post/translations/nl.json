@@ -118,6 +118,14 @@
         "name": "Bezorgde pakketten",
         "unit_of_measurement": "pakketten"
       },
+      "en_route_to_pickup_point": {
+        "name": "Onderweg naar afhaalpunt",
+        "unit_of_measurement": "pakketten"
+      },
+      "awaiting_pickup": {
+        "name": "Klaar voor afhalen",
+        "unit_of_measurement": "pakketten"
+      },
       "last_update": {
         "name": "Laatste succesvolle update"
       },

@@ -20,6 +20,12 @@
       "delivered_parcels": {
         "default": "mdi:package-variant"
       },
+      "en_route_to_pickup_point": {
+        "default": "mdi:truck-delivery"
+      },
+      "awaiting_pickup": {
+        "default": "mdi:store-clock"
+      },
       "last_update": {
         "default": "mdi:clock-check-outline"
       },
