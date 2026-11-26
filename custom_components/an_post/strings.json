@@ -77,6 +77,10 @@
         "tracking_code": {
           "name": "Tracking number",
           "description": "The An Post tracking number (e.g. AB123456789IE)."
+        },
+        "contents": {
+          "name": "Contents",
+          "description": "What is in the parcel, in your own words. Calling this again for a tracked parcel replaces it; an empty text clears it."
         }
       }
     },
@@ -91,6 +95,24 @@
         "tracking_code": {
           "name": "Tracking number",
           "description": "The An Post tracking number to stop watching."
+        }
+      }
+    },
+    "update_contents": {
+      "name": "Update parcel contents",
+      "description": "Set what is in a parcel, in your own words, for a tracking code. An empty text clears it.",
+      "fields": {
+        "tracking_code": {
+          "name": "Tracking number",
+          "description": "The An Post tracking number (e.g. AB123456789IE)."
+        },
+        "config_entry_id": {
+          "name": "Account",
+          "description": "The account to store this for. Needed when no account lists the code yet."
+        },
+        "contents": {
+          "name": "Contents",
+          "description": "What is in the parcel, in your own words. An empty text clears it."
         }
       }
     }
@@ -132,6 +154,11 @@
       "parcel": {
         "name": "Parcel {barcode}"
       }
+    }
+  },
+  "exceptions": {
+    "update_contents_entry_required": {
+      "message": "No account lists this code. Choose the account to store it for."
     }
   }
 }

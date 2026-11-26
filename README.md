@@ -41,6 +41,7 @@ A custom Home Assistant integration that tracks your [An Post](https://www.anpos
 - Per-parcel sensor with the canonical status (`registered` / `in_transit` / `delivered` / `returning` / `problem` / …), An Post's own category id, the expected delivery moment and a tracking deep-link
 - Summary sensors: incoming parcels, next delivery, en route to pickup point, awaiting pickup, recently delivered parcels
 - Read-only **Deliveries** calendar with the expected delivery moments
+- A `contents` note per parcel (`an_post.update_contents`) that titles the calendar event and shows on the next-delivery sensor
 - Events + device triggers for no-code automations (parcel registered, status changed, delivered, delivery time changed)
 - Automatic re-authentication when the An Post session expires
 - Manual refresh button and a diagnostic last-update sensor
@@ -144,6 +145,7 @@ Every parcel exposed on a sensor attribute uses a carrier-agnostic shape:
 | `barcode` | string | Parcel tracking number |
 | `sender` | string \| null | Retailer name, when known |
 | `receiver` | string \| null | Recipient name |
+| `contents` | string \| null | What is in the parcel, as set with `an_post.update_contents` or the `contents` field on `an_post.track_parcel` (kept on this machine only) |
 | `status` | `ParcelStatus` | Canonical status — see the [status reference](#parcel-status-reference) |
 | `raw_status` | string \| null | An Post's own numeric tracking-event category (power users) |
 | `delivered` | bool | Whether the parcel has been delivered |
@@ -192,10 +194,13 @@ Every payload is the full normalised parcel plus the account's `device_id`. Even
 
 | Service | Fields | Description |
 |---|---|---|
-| `an_post.track_parcel` | `config_entry_id`, `tracking_code` | Add a bare tracking number to the chosen account's own watchlist |
+| `an_post.track_parcel` | `config_entry_id`, `tracking_code`, `contents` (optional) | Add a bare tracking number to the chosen account's own watchlist, optionally noting what is in it |
 | `an_post.untrack_parcel` | `config_entry_id`, `tracking_code` | Remove a tracking number from the watchlist |
+| `an_post.update_contents` | `tracking_code`, `contents`, `config_entry_id` (optional) | Set what is in a parcel, tracked or not; an empty `contents` clears it. It goes to every account that lists the code; name one with `config_entry_id` (needed for a code none lists yet). |
 
 These call An Post's own server-side watchlist, not local storage — the parcel is folded into the account's regular inbox by An Post itself, so it also appears if you open the *Track & Manage* app. `config_entry_id` picks which configured account to change when you have more than one.
+
+The `contents` text you set is stored locally, titles the parcel's calendar event and shows on the next-delivery sensor.
 
 ## Examples
 

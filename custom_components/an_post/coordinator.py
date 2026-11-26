@@ -11,7 +11,7 @@ import hashlib
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -28,6 +28,7 @@ from .const import (
     STAGGER_MINUTES,
     ParcelStatus,
 )
+from .contents import ContentsStore, normalize_code
 from .parcels import apply_delivered_filter, normalize_parcel, sort_parcels_by_ts
 
 _LOGGER = logging.getLogger(__name__)
@@ -126,7 +127,12 @@ class AnPostCoordinator(DataUpdateCoordinator[list[dict]]):
             update_interval=timedelta(minutes=HOT_INTERVAL_MINUTES),
         )
         self._client = client
+        self.contents_store = ContentsStore(hass, entry.entry_id)
         self.delivered: list[dict] = []
+        # id(published parcel) -> the code its contents are stored under: a
+        # parcel can publish a falsy barcode, so the store is keyed on what the
+        # poll saw rather than on the parcel afterwards.
+        self._parcel_codes: dict[int, str] = {}
         # barcode -> last seen ParcelStatus / (planned_from, planned_to).
         # ``None`` on the first refresh so events are suppressed for parcels
         # that already existed when the integration started — otherwise every
@@ -143,6 +149,27 @@ class AnPostCoordinator(DataUpdateCoordinator[list[dict]]):
         # Tier last computed by _hottest_tier_minutes — surfaced in
         # diagnostics. None until the first successful refresh.
         self._current_tier_minutes: int | None = None
+
+    def _apply_contents(self, parcel: dict, code: object) -> dict:
+        """Put the user's own contents text over the carrier's, when there is one."""
+        user_value = self.contents_store.get(code)
+        if user_value is not None:
+            parcel["contents"] = user_value
+        return parcel
+
+    @callback
+    def async_reapply_contents(self) -> None:
+        """Re-read the contents store into the published parcels, without a poll."""
+        for parcel in [*(self.data or []), *self.delivered]:
+            code = self._parcel_codes.get(id(parcel), parcel.get("barcode") or "")
+            parcel["contents"] = None
+            self._apply_contents(parcel, code)
+        self.async_update_listeners()
+
+    @property
+    def known_codes(self) -> set[str]:
+        """Normalised tracking codes of the parcels this account lists."""
+        return {normalize_code(code) for code in self._parcel_codes.values() if code}
 
     @property
     def current_tier_minutes(self) -> int | None:
@@ -192,7 +219,13 @@ class AnPostCoordinator(DataUpdateCoordinator[list[dict]]):
         except AnPostAuthError as err:
             raise ConfigEntryAuthFailed("An Post session expired") from err
 
-        normalized = [normalize_parcel(raw) for raw in raws]
+        normalized = [
+            self._apply_contents(parcel, parcel.get("barcode") or "")
+            for parcel in (normalize_parcel(raw) for raw in raws)
+        ]
+        self._parcel_codes = {
+            id(parcel): parcel.get("barcode") or "" for parcel in normalized
+        }
         active = [parcel for parcel in normalized if not parcel["delivered"]]
         delivered = [parcel for parcel in normalized if parcel["delivered"]]
 

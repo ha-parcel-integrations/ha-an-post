@@ -15,6 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import AnPostApiClient, AnPostApiError, AnPostAuthError
 from .const import DOMAIN, PLATFORMS
+from .contents import ContentsStore
 from .coordinator import AnPostCoordinator
 from .services import async_setup_services, async_unload_services
 
@@ -59,6 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> bo
         raise ConfigEntryNotReady("An Post login failed") from err
 
     coordinator = AnPostCoordinator(hass, client, entry)
+    await coordinator.contents_store.async_load()
 
     try:
         # Fetch initial data here, before forwarding to platforms. Raising
@@ -82,9 +84,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> bo
         await session.close()
         raise
 
-    # Registers an_post.track_parcel / untrack_parcel (the account's
-    # server-side watchlist), idempotently — multiple accounts share the same
-    # two services and target one another via a config_entry_id field.
+    # Registers the an_post services idempotently — multiple accounts share
+    # them; track_parcel / untrack_parcel target one via a config_entry_id field.
     async_setup_services(hass)
 
     # No entry.add_update_listener: the options flow is an
@@ -103,3 +104,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> b
     if not remaining:
         async_unload_services(hass)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: AnPostConfigEntry) -> None:
+    """Delete the entry's stored contents."""
+    await ContentsStore(hass, entry.entry_id).async_remove()

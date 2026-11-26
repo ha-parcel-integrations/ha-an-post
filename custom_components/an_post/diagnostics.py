@@ -25,6 +25,7 @@ TO_REDACT = {
     "barcode",
     "sender",
     "receiver",
+    "contents",
     "url",
     # An Post payload fields
     "trackingNumber",

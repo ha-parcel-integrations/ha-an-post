@@ -5,7 +5,7 @@ endpoint (not local config-entry storage) and target one of possibly several
 configured accounts via ``config_entry_id``.
 """
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.exceptions import ServiceValidationError
@@ -30,7 +30,9 @@ def _loaded_entry(hass) -> MockConfigEntry:
     entry = MockConfigEntry(domain=DOMAIN, title="user@example.test")
     entry.add_to_hass(hass)
     entry.mock_state(hass, ConfigEntryState.LOADED)
-    entry.runtime_data = type("RuntimeData", (), {"client": AsyncMock()})()
+    entry.runtime_data = type(
+        "RuntimeData", (), {"client": AsyncMock(), "coordinator": MagicMock()}
+    )()
     return entry
 
 
